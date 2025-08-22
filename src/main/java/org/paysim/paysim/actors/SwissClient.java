@@ -29,6 +29,39 @@ public class SwissClient extends Client {
         
         // Initialize Swiss-specific attributes
         initializeSwissAttributes(paySim.random);
+        
+        // Override the name to be more realistic
+        setRealisticSwissName(paySim.random);
+    }
+    
+    /**
+     * Set a realistic Swiss name for the client
+     */
+    private void setRealisticSwissName(MersenneTwisterFast random) {
+        String[] swissFirstNames = {
+            "Hans", "Peter", "Thomas", "Michael", "Andreas", "Martin", "Christian", "Daniel", "Markus", "Stefan",
+            "Anna", "Maria", "Ursula", "Monika", "Sandra", "Claudia", "Sabine", "Petra", "Elisabeth", "Barbara"
+        };
+        
+        String[] swissLastNames = {
+            "Müller", "Schmid", "Schneider", "Fischer", "Meyer", "Weber", "Huber", "Wagner", "Steiner", "Berger",
+            "Frei", "Roth", "Zimmermann", "Keller", "Brunner", "Widmer", "Kuhn", "Baumann", "Lüthi", "Hofmann"
+        };
+        
+        String firstName = swissFirstNames[random.nextInt(swissFirstNames.length)];
+        String lastName = swissLastNames[random.nextInt(swissLastNames.length)];
+        
+        // Create a realistic Swiss name format
+        String realisticName = firstName + " " + lastName;
+        
+        // Use reflection to set the name field (since it's private in SuperActor)
+        try {
+            java.lang.reflect.Field nameField = getClass().getSuperclass().getSuperclass().getDeclaredField("name");
+            nameField.setAccessible(true);
+            nameField.set(this, realisticName);
+        } catch (Exception e) {
+            // If reflection fails, keep the original name
+        }
     }
 
     private void initializeSwissAttributes(MersenneTwisterFast random) {
@@ -84,6 +117,84 @@ public class SwissClient extends Client {
     public String getLocation() { return location; }
     public boolean hasCar() { return hasCar; }
     public boolean isStudent() { return isStudent; }
+    
+    /**
+     * Get realistic Swiss company name for transaction type
+     * Creates recurring patterns for specific clients
+     */
+    private String getSwissCompanyName(MersenneTwisterFast random, String action) {
+        // Use client ID hash to create consistent company preferences
+        int clientHash = Math.abs(getName().hashCode());
+        
+        switch (action) {
+            case "FOOD_GROCERIES":
+                String[] groceryStores = {"Migros", "Coop", "Aldi", "Lidl", "Denner", "Volg"};
+                return groceryStores[clientHash % groceryStores.length];
+                
+            case "FOOD_RESTAURANT":
+                String[] restaurants = {"McDonald's", "Burger King", "Subway", "Pizza Hut", "KFC", "Starbucks"};
+                return restaurants[clientHash % restaurants.length];
+                
+            case "TRANSPORT_PUBLIC":
+                String[] publicTransport = {"SBB", "PostAuto", "VBZ", "TPG", "BVB", "Tram"};
+                return publicTransport[clientHash % publicTransport.length];
+                
+            case "TRANSPORT_PRIVATE":
+                String[] privateTransport = {"Shell", "BP", "Avia", "Coop Pronto", "Migrol", "Tamoil"};
+                return privateTransport[clientHash % privateTransport.length];
+                
+            case "HEALTHCARE":
+                String[] healthcare = {"CSS", "Swisscare", "Helsana", "Concordia", "AXA", "Sanitas"};
+                return healthcare[clientHash % healthcare.length];
+                
+            case "SHOPPING_CLOTHES":
+                String[] clothingStores = {"H&M", "Zara", "C&A", "Uniqlo", "Mango", "New Yorker"};
+                return clothingStores[clientHash % clothingStores.length];
+                
+            case "SHOPPING_ELECTRONICS":
+                String[] electronicsStores = {"MediaMarkt", "Interdiscount", "Fust", "Brack", "Digitec", "Galaxus"};
+                return electronicsStores[clientHash % electronicsStores.length];
+                
+            case "ENTERTAINMENT":
+                String[] entertainment = {"Netflix", "Spotify", "Disney+", "Amazon Prime", "Apple Music", "YouTube Premium"};
+                return entertainment[clientHash % entertainment.length];
+                
+            case "HOUSING":
+                String[] housing = {"Swisscom", "EWZ", "GEW", "IWB", "AEW", "Local Utility"};
+                return housing[clientHash % housing.length];
+                
+            case "INSURANCE":
+                String[] insurance = {"AXA", "Zurich", "Allianz", "Generali", "Basler", "Helvetia"};
+                return insurance[clientHash % insurance.length];
+                
+            case "EDUCATION":
+                String[] education = {"ETH Zurich", "University of Zurich", "University of Basel", "University of Bern", "Online Course", "Language School"};
+                return education[clientHash % education.length];
+                
+            case "TRAVEL":
+                String[] travel = {"Swiss", "EasyJet", "Ryanair", "Booking.com", "Airbnb", "Expedia"};
+                return travel[clientHash % travel.length];
+                
+            case "CASH_WITHDRAWAL":
+                String[] atms = {"UBS ATM", "Credit Suisse ATM", "PostFinance ATM", "Raiffeisen ATM", "ZKB ATM", "Local Bank ATM"};
+                return atms[clientHash % atms.length];
+                
+            case "CASH_DEPOSIT":
+                String[] banks = {"UBS", "Credit Suisse", "PostFinance", "Raiffeisen", "ZKB", "Local Bank"};
+                return banks[clientHash % banks.length];
+                
+            case "BANK_TRANSFER":
+                String[] transferBanks = {"UBS Transfer", "Credit Suisse Transfer", "PostFinance Transfer", "Raiffeisen Transfer", "ZKB Transfer", "Local Bank Transfer"};
+                return transferBanks[clientHash % transferBanks.length];
+                
+            case "CREDIT_CARD_PAYMENT":
+                String[] creditCards = {"UBS Credit Card", "Credit Suisse Credit Card", "PostFinance Credit Card", "Raiffeisen Credit Card", "ZKB Credit Card", "Local Bank Credit Card"};
+                return creditCards[clientHash % creditCards.length];
+                
+            default:
+                return "Swiss Company";
+        }
+    }
     
     @Override
     public void step(SimState state) {
@@ -154,6 +265,24 @@ public class SwissClient extends Client {
         if (isStudent) {
             swissProbabilities.put("EDUCATION", 0.20);
             swissProbabilities.put("FOOD_RESTAURANT", 0.25);
+        }
+        
+        // Add recurring pattern logic based on client ID
+        int clientHash = Math.abs(getName().hashCode());
+        
+        // Some clients prefer specific transaction types (creates recurring patterns)
+        if (clientHash % 10 == 0) { // 10% of clients prefer entertainment
+            swissProbabilities.put("ENTERTAINMENT", 0.25);
+            swissProbabilities.put("FOOD_RESTAURANT", 0.20);
+        } else if (clientHash % 10 == 1) { // 10% prefer shopping
+            swissProbabilities.put("SHOPPING_CLOTHES", 0.25);
+            swissProbabilities.put("SHOPPING_ELECTRONICS", 0.15);
+        } else if (clientHash % 10 == 2) { // 10% prefer transport
+            swissProbabilities.put("TRANSPORT_PUBLIC", 0.25);
+            swissProbabilities.put("TRANSPORT_PRIVATE", 0.20);
+        } else if (clientHash % 10 == 3) { // 10% prefer healthcare
+            swissProbabilities.put("HEALTHCARE", 0.20);
+            swissProbabilities.put("INSURANCE", 0.10);
         }
         
         // Create random collection for action selection
@@ -267,28 +396,26 @@ public class SwissClient extends Client {
     }
     
     private void makeSwissTransaction(PaySim paySim, int step, String action, double amount) {
-        // Create transaction based on Swiss action type
-        Merchant merchantTo = paySim.pickRandomMerchant();
+        // Get realistic Swiss company name for this transaction type
+        String swissCompanyName = getSwissCompanyName(paySim.random, action);
         
         String nameOrig = this.getName();
-        String nameDest = merchantTo.getName();
+        String nameDest = swissCompanyName; // Use Swiss company name instead of generic merchant
         double oldBalanceOrig = this.getBalance();
-        double oldBalanceDest = merchantTo.getBalance();
+        double oldBalanceDest = 0.0; // Swiss companies start with 0 balance
         
         // Withdraw amount from client
         boolean isUnauthorizedOverdraft = this.withdraw(amount);
         
-        // Deposit amount to merchant
-        merchantTo.deposit(amount);
-        
+        // For Swiss companies, we don't need to deposit to merchant (simplified)
         double newBalanceOrig = this.getBalance();
-        double newBalanceDest = merchantTo.getBalance();
+        double newBalanceDest = amount; // Company receives the payment
         
         Transaction transaction = new Transaction(step, action, amount, nameOrig, oldBalanceOrig,
                                                newBalanceOrig, nameDest, oldBalanceDest, newBalanceDest);
         
         transaction.setUnauthorizedOverdraft(isUnauthorizedOverdraft);
-        transaction.setFraud(this.isFraud());
+        transaction.setFraud(false); // No fraud in Swiss spending data
         
         // Add transaction to PaySim
         paySim.getTransactions().add(transaction);
