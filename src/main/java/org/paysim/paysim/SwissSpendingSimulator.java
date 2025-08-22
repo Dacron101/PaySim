@@ -11,6 +11,9 @@ import org.paysim.paysim.actors.Bank;
 import org.paysim.paysim.actors.SwissClient;
 import org.paysim.paysim.actors.Merchant;
 import org.paysim.paysim.actors.Client;
+import org.paysim.paysim.actors.Fraudster;
+import org.paysim.paysim.actors.networkdrugs.NetworkDrug;
+import org.paysim.paysim.parameters.TypologiesFiles;
 
 import org.paysim.paysim.base.ClientActionProfile;
 import org.paysim.paysim.base.StepActionProfile;
@@ -37,7 +40,7 @@ public class SwissSpendingSimulator extends PaySim {
         
         for (int i = 0; i < nbTimesRepeat; i++) {
             SwissSpendingSimulator p = new SwissSpendingSimulator();
-            p.start();
+            p.runSimulation();
         }
     }
 
@@ -62,6 +65,49 @@ public class SwissSpendingSimulator extends PaySim {
             Output.writeParameters(seed());
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    
+    @Override
+    protected void initActors() {
+        System.out.println("Init - Seed " + seed());
+
+        //Add the merchants
+        System.out.println("NbMerchants: " + (int) (Parameters.nbMerchants * Parameters.multiplier));
+        for (int i = 0; i < Parameters.nbMerchants * Parameters.multiplier; i++) {
+            Merchant m = new Merchant(generateId());
+            merchants.add(m);
+        }
+
+        //Add the fraudsters
+        System.out.println("NbFraudsters: " + (int) (Parameters.nbFraudsters * Parameters.multiplier));
+        for (int i = 0; i < Parameters.nbFraudsters * Parameters.multiplier; i++) {
+            Fraudster f = new Fraudster(generateId());
+            fraudsters.add(f);
+            schedule.scheduleRepeating(f);
+        }
+
+        //Add the banks
+        System.out.println("NbBanks: " + Parameters.nbBanks);
+        for (int i = 0; i < Parameters.nbBanks; i++) {
+            Bank b = new Bank(generateId());
+            banks.add(b);
+        }
+
+        //Add the Swiss clients instead of regular clients
+        System.out.println("NbClients: " + (int) (Parameters.nbClients * Parameters.multiplier));
+        for (int i = 0; i < Parameters.nbClients * Parameters.multiplier; i++) {
+            SwissClient c = new SwissClient(this);
+            clients.add(c);
+        }
+
+        // Skip drug network creation for Swiss spending simulator
+        // NetworkDrug.createNetwork(this, Parameters.typologiesFolder + TypologiesFiles.drugNetworkOne);
+
+        // Do not write code under this part otherwise clients will not be used in simulation
+        // Schedule clients to act at each step of the simulation
+        for (Client c : clients) {
+            schedule.scheduleRepeating(c);
         }
     }
 }

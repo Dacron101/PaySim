@@ -30,7 +30,7 @@ public class Client extends SuperActor implements Steppable {
     private static final String CASH_IN = "CASH_IN", CASH_OUT = "CASH_OUT", DEBIT = "DEBIT",
             PAYMENT = "PAYMENT", TRANSFER = "TRANSFER", DEPOSIT = "DEPOSIT";
     private final Bank bank;
-    private ClientProfile clientProfile;
+    protected ClientProfile clientProfile;
     private double clientWeight;
     private double balanceMax = 0;
     private int countTransferTransactions = 0;

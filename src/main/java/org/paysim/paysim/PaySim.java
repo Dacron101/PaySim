@@ -29,10 +29,10 @@ public class PaySim extends SimState {
     private int totalTransactionsMade = 0;
     private int stepParticipated = 0;
 
-    private ArrayList<Client> clients = new ArrayList<>();
-    private ArrayList<Merchant> merchants = new ArrayList<>();
-    private ArrayList<Fraudster> fraudsters = new ArrayList<>();
-    private ArrayList<Bank> banks = new ArrayList<>();
+    protected ArrayList<Client> clients = new ArrayList<>();
+    protected ArrayList<Merchant> merchants = new ArrayList<>();
+    protected ArrayList<Fraudster> fraudsters = new ArrayList<>();
+    protected ArrayList<Bank> banks = new ArrayList<>();
 
     private ArrayList<Transaction> transactions = new ArrayList<>();
     private int currentStep;
@@ -75,7 +75,7 @@ public class PaySim extends SimState {
         Output.writeParameters(seed());
     }
 
-    private void runSimulation() {
+    protected void runSimulation() {
         System.out.println();
         System.out.println("Starting PaySim Running for " + Parameters.nbSteps + " steps.");
         long startTime = System.currentTimeMillis();
@@ -114,7 +114,7 @@ public class PaySim extends SimState {
         }
     }
 
-    private void initActors() {
+    protected void initActors() {
         System.out.println("Init - Seed " + seed());
 
         //Add the merchants
