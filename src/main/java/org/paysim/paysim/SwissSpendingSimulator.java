@@ -72,31 +72,37 @@ public class SwissSpendingSimulator extends PaySim {
     protected void initActors() {
         System.out.println("Init - Seed " + seed());
 
+        // LARGE OUTPUT VERSION: Use hardcoded large parameters for ~1M lines
+        int largeNbMerchants = 10000;
+        int largeNbClients = 20000;
+        int largeNbBanks = 20;
+        int largeMultiplier = 20;
+
         //Add the merchants
-        System.out.println("NbMerchants: " + (int) (Parameters.nbMerchants * Parameters.multiplier));
-        for (int i = 0; i < Parameters.nbMerchants * Parameters.multiplier; i++) {
+        System.out.println("NbMerchants: " + largeNbMerchants);
+        for (int i = 0; i < largeNbMerchants; i++) {
             Merchant m = new Merchant(generateId());
             merchants.add(m);
         }
 
         //Add the fraudsters
-        System.out.println("NbFraudsters: " + (int) (Parameters.nbFraudsters * Parameters.multiplier));
-        for (int i = 0; i < Parameters.nbFraudsters * Parameters.multiplier; i++) {
+        System.out.println("NbFraudsters: " + (int) (Parameters.nbFraudsters * largeMultiplier));
+        for (int i = 0; i < Parameters.nbFraudsters * largeMultiplier; i++) {
             Fraudster f = new Fraudster(generateId());
             fraudsters.add(f);
             schedule.scheduleRepeating(f);
         }
 
         //Add the banks
-        System.out.println("NbBanks: " + Parameters.nbBanks);
-        for (int i = 0; i < Parameters.nbBanks; i++) {
+        System.out.println("NbBanks: " + largeNbBanks);
+        for (int i = 0; i < largeNbBanks; i++) {
             Bank b = new Bank(generateId());
             banks.add(b);
         }
 
         //Add the Swiss clients instead of regular clients
-        System.out.println("NbClients: " + (int) (Parameters.nbClients * Parameters.multiplier));
-        for (int i = 0; i < Parameters.nbClients * Parameters.multiplier; i++) {
+        System.out.println("NbClients: " + largeNbClients);
+        for (int i = 0; i < largeNbClients; i++) {
             SwissClient c = new SwissClient(this);
             clients.add(c);
         }
