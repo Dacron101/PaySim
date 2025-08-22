@@ -127,69 +127,69 @@ public class SwissClient extends Client {
         int clientHash = Math.abs(getName().hashCode());
         
         switch (action) {
-            case "FOOD_GROCERIES":
-                String[] groceryStores = {"Migros", "Coop", "Aldi", "Lidl", "Denner", "Volg"};
-                return groceryStores[clientHash % groceryStores.length];
+            case "INCOME_GENERAL":
+                String[] incomeSources = {"UBS Salary", "Credit Suisse Salary", "PostFinance Salary", "Raiffeisen Salary", "ZKB Salary", "Local Company Salary", "Swiss Salary", "International Company Salary", "Startup Salary", "Government Salary"};
+                return incomeSources[clientHash % incomeSources.length];
                 
-            case "FOOD_RESTAURANT":
-                String[] restaurants = {"McDonald's", "Burger King", "Subway", "Pizza Hut", "KFC", "Starbucks"};
-                return restaurants[clientHash % restaurants.length];
-                
-            case "TRANSPORT_PUBLIC":
-                String[] publicTransport = {"SBB", "PostAuto", "VBZ", "TPG", "BVB", "Tram"};
-                return publicTransport[clientHash % publicTransport.length];
-                
-            case "TRANSPORT_PRIVATE":
-                String[] privateTransport = {"Shell", "BP", "Avia", "Coop Pronto", "Migrol", "Tamoil"};
-                return privateTransport[clientHash % privateTransport.length];
-                
-            case "HEALTHCARE":
-                String[] healthcare = {"CSS", "Swisscare", "Helsana", "Concordia", "AXA", "Sanitas"};
-                return healthcare[clientHash % healthcare.length];
-                
-            case "SHOPPING_CLOTHES":
-                String[] clothingStores = {"H&M", "Zara", "C&A", "Uniqlo", "Mango", "New Yorker"};
-                return clothingStores[clientHash % clothingStores.length];
-                
-            case "SHOPPING_ELECTRONICS":
-                String[] electronicsStores = {"MediaMarkt", "Interdiscount", "Fust", "Brack", "Digitec", "Galaxus"};
-                return electronicsStores[clientHash % electronicsStores.length];
-                
-            case "ENTERTAINMENT":
-                String[] entertainment = {"Netflix", "Spotify", "Disney+", "Amazon Prime", "Apple Music", "YouTube Premium"};
-                return entertainment[clientHash % entertainment.length];
-                
-            case "HOUSING":
-                String[] housing = {"Swisscom", "EWZ", "GEW", "IWB", "AEW", "Local Utility"};
+            case "HOUSING_GENERAL":
+                String[] housing = {"Swisscom", "EWZ", "GEW", "IWB", "AEW", "Local Utility", "Internet Provider", "Phone Provider", "Cable Provider", "Security System"};
                 return housing[clientHash % housing.length];
                 
-            case "INSURANCE":
-                String[] insurance = {"AXA", "Zurich", "Allianz", "Generali", "Basler", "Helvetia"};
-                return insurance[clientHash % insurance.length];
+            case "GENERAL_EXPENSES_DAILY":
+                String[] dailyExpenses = {"Migros", "Coop", "Aldi", "Lidl", "Denner", "Volg", "Manor", "Globus", "Jelmoli", "Local Market", "Farmers Market", "Organic Store"};
+                return dailyExpenses[clientHash % dailyExpenses.length];
                 
-            case "EDUCATION":
-                String[] education = {"ETH Zurich", "University of Zurich", "University of Basel", "University of Bern", "Online Course", "Language School"};
-                return education[clientHash % education.length];
-                
-            case "TRAVEL":
-                String[] travel = {"Swiss", "EasyJet", "Ryanair", "Booking.com", "Airbnb", "Expedia"};
+            case "TRAVEL_GENERAL":
+                String[] travel = {"Swiss", "EasyJet", "Ryanair", "Booking.com", "Airbnb", "Expedia", "Hotels.com", "TripAdvisor", "Kayak", "Skyscanner", "Local Travel Agency", "Trainline"};
                 return travel[clientHash % travel.length];
                 
-            case "CASH_WITHDRAWAL":
-                String[] atms = {"UBS ATM", "Credit Suisse ATM", "PostFinance ATM", "Raiffeisen ATM", "ZKB ATM", "Local Bank ATM"};
-                return atms[clientHash % atms.length];
+            case "OTHER_GENERAL":
+                String[] otherExpenses = {"Local Shop", "Kiosk", "Market", "Vending Machine", "Street Vendor", "Pop-up Store", "Flea Market", "Antique Shop", "Craft Store", "Gift Shop", "Stationery Store", "Hardware Store"};
+                return otherExpenses[clientHash % otherExpenses.length];
                 
-            case "CASH_DEPOSIT":
-                String[] banks = {"UBS", "Credit Suisse", "PostFinance", "Raiffeisen", "ZKB", "Local Bank"};
-                return banks[clientHash % banks.length];
+            case "SHOPPING_ELECTRONICS":
+                String[] electronicsStores = {"MediaMarkt", "Interdiscount", "Fust", "Brack", "Digitec", "Galaxus", "Apple Store", "Samsung Store", "Saturn", "Expert", "Conrad", "Online Electronics"};
+                return electronicsStores[clientHash % electronicsStores.length];
                 
-            case "BANK_TRANSFER":
-                String[] transferBanks = {"UBS Transfer", "Credit Suisse Transfer", "PostFinance Transfer", "Raiffeisen Transfer", "ZKB Transfer", "Local Bank Transfer"};
-                return transferBanks[clientHash % transferBanks.length];
+            case "SHOPPING_BOOKS":
+                String[] bookStores = {"Orell Füssli", "Buchhandlung Stauffacher", "Buchhandlung Jäggi", "Buchhandlung Bider", "Online Bookstore", "University Bookstore", "Thalia", "Buch.ch", "Amazon Books", "Local Library", "Academic Bookstore", "Children's Bookstore"};
+                return bookStores[clientHash % bookStores.length];
                 
-            case "CREDIT_CARD_PAYMENT":
-                String[] creditCards = {"UBS Credit Card", "Credit Suisse Credit Card", "PostFinance Credit Card", "Raiffeisen Credit Card", "ZKB Credit Card", "Local Bank Credit Card"};
-                return creditCards[clientHash % creditCards.length];
+            case "SHOPPING_CLOTHING":
+                String[] clothingStores = {"H&M", "Zara", "C&A", "Uniqlo", "Mango", "New Yorker", "Manor Fashion", "Globus Fashion", "Jelmoli Fashion", "Local Boutique", "Designer Store", "Sportswear Store", "Shoe Store", "Jewelry Store"};
+                return clothingStores[clientHash % clothingStores.length];
+                
+            case "HEALTHCARE_GENERAL":
+                String[] healthcare = {"CSS", "Swisscare", "Helsana", "Concordia", "AXA", "Sanitas", "Swica", "KPT", "Atupri", "ProVita", "Aquilana", "Local Doctor", "Dentist", "Pharmacy", "Hospital", "Specialist Clinic"};
+                return healthcare[clientHash % healthcare.length];
+                
+            case "TRANSPORTATION_FUEL":
+                String[] fuelStations = {"Shell", "BP", "Avia", "Coop Pronto", "Migrol", "Tamoil", "Agrola", "Esso", "Total", "Local Gas Station", "Highway Service", "Car Wash"};
+                return fuelStations[clientHash % fuelStations.length];
+                
+            case "TRANSPORTATION_PUBLIC":
+                String[] publicTransport = {"SBB", "PostAuto", "VBZ", "TPG", "BVB", "Tram", "Bus", "Metro", "Cable Car", "Funicular", "Boat", "Bike Share", "Scooter Share"};
+                return publicTransport[clientHash % publicTransport.length];
+                
+            case "FOOD_DINING_LUNCH":
+                String[] lunchPlaces = {"McDonald's", "Burger King", "Subway", "Pizza Hut", "KFC", "Starbucks", "Migros Restaurant", "Coop Restaurant", "Local Café", "Food Truck", "Pizza Place", "Sushi Restaurant", "Thai Restaurant", "Italian Restaurant", "Swiss Restaurant", "Fast Food", "Cafeteria", "Bakery", "Deli", "Street Food"};
+                return lunchPlaces[clientHash % lunchPlaces.length];
+                
+            case "TAXES_GENERAL":
+                String[] taxAuthorities = {"Federal Tax Office", "Canton Tax Office", "Municipal Tax Office", "VAT Office", "Wealth Tax Office", "Income Tax Office", "Property Tax Office", "Corporate Tax Office", "Import Tax Office", "Export Tax Office"};
+                return taxAuthorities[clientHash % taxAuthorities.length];
+                
+            case "UTILITIES_GENERAL":
+                String[] utilities = {"Swisscom", "EWZ", "GEW", "IWB", "AEW", "Local Utility", "Internet Provider", "Phone Provider", "Cable Provider", "Electricity Provider", "Water Provider", "Gas Provider", "Waste Management", "Recycling Service"};
+                return utilities[clientHash % utilities.length];
+                
+            case "ENTERTAINMENT_STREAMING":
+                String[] streamingServices = {"Netflix", "Spotify", "Disney+", "Amazon Prime", "Apple Music", "YouTube Premium", "HBO Max", "Hulu", "Crunchyroll", "Twitch", "Tidal", "Deezer", "Pandora", "SoundCloud", "Podcast Platform"};
+                return streamingServices[clientHash % streamingServices.length];
+                
+            case "ENTERTAINMENT_MOBILE":
+                String[] mobileServices = {"Swisscom Mobile", "Sunrise Mobile", "Salt Mobile", "Yallo Mobile", "M-Budget Mobile", "Aldi Talk", "Lebara", "Lyca Mobile", "Gomo", "Wingo", "Mobile Virtual Network", "International Roaming"};
+                return mobileServices[clientHash % mobileServices.length];
                 
             default:
                 return "Swiss Company";
@@ -218,53 +218,53 @@ public class SwissClient extends Client {
     }
     
     private String pickSwissAction(MersenneTwisterFast random, Map<String, Double> stepActionProb) {
-        // Use Swiss-specific transaction types and probabilities
+        // Use new Main_Categories and Sub_Categories
         String[] swissActions = {
-            "FOOD_GROCERIES", "FOOD_RESTAURANT", "TRANSPORT_PUBLIC", "TRANSPORT_PRIVATE",
-            "HEALTHCARE", "SHOPPING_CLOTHES", "SHOPPING_ELECTRONICS", "ENTERTAINMENT",
-            "HOUSING", "INSURANCE", "EDUCATION", "TRAVEL", "CASH_WITHDRAWAL", 
-            "CASH_DEPOSIT", "BANK_TRANSFER", "CREDIT_CARD_PAYMENT"
+            "INCOME_GENERAL", "HOUSING_GENERAL", "GENERAL_EXPENSES_DAILY", "TRAVEL_GENERAL",
+            "OTHER_GENERAL", "SHOPPING_ELECTRONICS", "SHOPPING_BOOKS", "SHOPPING_CLOTHING",
+            "HEALTHCARE_GENERAL", "TRANSPORTATION_FUEL", "TRANSPORTATION_PUBLIC", "FOOD_DINING_LUNCH",
+            "TAXES_GENERAL", "UTILITIES_GENERAL", "ENTERTAINMENT_STREAMING", "ENTERTAINMENT_MOBILE"
         };
         
         // Adjust probabilities based on Swiss context
         Map<String, Double> swissProbabilities = new HashMap<>();
         
         // Base probabilities for different transaction types
-        swissProbabilities.put("FOOD_GROCERIES", 0.25);
-        swissProbabilities.put("FOOD_RESTAURANT", 0.15);
-        swissProbabilities.put("TRANSPORT_PUBLIC", 0.12);
-        swissProbabilities.put("TRANSPORT_PRIVATE", 0.08);
-        swissProbabilities.put("HEALTHCARE", 0.08);
-        swissProbabilities.put("SHOPPING_CLOTHES", 0.10);
-        swissProbabilities.put("SHOPPING_ELECTRONICS", 0.05);
-        swissProbabilities.put("ENTERTAINMENT", 0.08);
-        swissProbabilities.put("HOUSING", 0.05);
-        swissProbabilities.put("INSURANCE", 0.03);
-        swissProbabilities.put("EDUCATION", 0.02);
-        swissProbabilities.put("TRAVEL", 0.03);
-        swissProbabilities.put("CASH_WITHDRAWAL", 0.02);
-        swissProbabilities.put("CASH_DEPOSIT", 0.01);
-        swissProbabilities.put("BANK_TRANSFER", 0.01);
-        swissProbabilities.put("CREDIT_CARD_PAYMENT", 0.01);
+        swissProbabilities.put("INCOME_GENERAL", 0.05);
+        swissProbabilities.put("HOUSING_GENERAL", 0.08);
+        swissProbabilities.put("GENERAL_EXPENSES_DAILY", 0.20);
+        swissProbabilities.put("TRAVEL_GENERAL", 0.05);
+        swissProbabilities.put("OTHER_GENERAL", 0.05);
+        swissProbabilities.put("SHOPPING_ELECTRONICS", 0.08);
+        swissProbabilities.put("SHOPPING_BOOKS", 0.05);
+        swissProbabilities.put("SHOPPING_CLOTHING", 0.10);
+        swissProbabilities.put("HEALTHCARE_GENERAL", 0.08);
+        swissProbabilities.put("TRANSPORTATION_FUEL", 0.08);
+        swissProbabilities.put("TRANSPORTATION_PUBLIC", 0.12);
+        swissProbabilities.put("FOOD_DINING_LUNCH", 0.15);
+        swissProbabilities.put("TAXES_GENERAL", 0.03);
+        swissProbabilities.put("UTILITIES_GENERAL", 0.05);
+        swissProbabilities.put("ENTERTAINMENT_STREAMING", 0.08);
+        swissProbabilities.put("ENTERTAINMENT_MOBILE", 0.05);
         
         // Adjust based on demographic attributes
         if (ageGroup.equals("YOUNG")) {
-            swissProbabilities.put("EDUCATION", 0.08);
-            swissProbabilities.put("ENTERTAINMENT", 0.15);
-            swissProbabilities.put("SHOPPING_CLOTHES", 0.15);
+            swissProbabilities.put("ENTERTAINMENT_STREAMING", 0.15);
+            swissProbabilities.put("ENTERTAINMENT_MOBILE", 0.12);
+            swissProbabilities.put("SHOPPING_CLOTHING", 0.15);
         } else if (ageGroup.equals("SENIOR")) {
-            swissProbabilities.put("HEALTHCARE", 0.15);
-            swissProbabilities.put("TRANSPORT_PUBLIC", 0.20);
+            swissProbabilities.put("HEALTHCARE_GENERAL", 0.15);
+            swissProbabilities.put("TRANSPORTATION_PUBLIC", 0.20);
         }
         
         if (location.equals("RURAL")) {
-            swissProbabilities.put("TRANSPORT_PRIVATE", 0.20);
-            swissProbabilities.put("FOOD_GROCERIES", 0.30);
+            swissProbabilities.put("TRANSPORTATION_FUEL", 0.20);
+            swissProbabilities.put("GENERAL_EXPENSES_DAILY", 0.30);
         }
         
         if (isStudent) {
-            swissProbabilities.put("EDUCATION", 0.20);
-            swissProbabilities.put("FOOD_RESTAURANT", 0.25);
+            swissProbabilities.put("SHOPPING_BOOKS", 0.20);
+            swissProbabilities.put("FOOD_DINING_LUNCH", 0.25);
         }
         
         // Add recurring pattern logic based on client ID
@@ -272,17 +272,17 @@ public class SwissClient extends Client {
         
         // Some clients prefer specific transaction types (creates recurring patterns)
         if (clientHash % 10 == 0) { // 10% of clients prefer entertainment
-            swissProbabilities.put("ENTERTAINMENT", 0.25);
-            swissProbabilities.put("FOOD_RESTAURANT", 0.20);
+            swissProbabilities.put("ENTERTAINMENT_STREAMING", 0.25);
+            swissProbabilities.put("ENTERTAINMENT_MOBILE", 0.20);
         } else if (clientHash % 10 == 1) { // 10% prefer shopping
-            swissProbabilities.put("SHOPPING_CLOTHES", 0.25);
+            swissProbabilities.put("SHOPPING_CLOTHING", 0.25);
             swissProbabilities.put("SHOPPING_ELECTRONICS", 0.15);
         } else if (clientHash % 10 == 2) { // 10% prefer transport
-            swissProbabilities.put("TRANSPORT_PUBLIC", 0.25);
-            swissProbabilities.put("TRANSPORT_PRIVATE", 0.20);
+            swissProbabilities.put("TRANSPORTATION_PUBLIC", 0.25);
+            swissProbabilities.put("TRANSPORTATION_FUEL", 0.20);
         } else if (clientHash % 10 == 3) { // 10% prefer healthcare
-            swissProbabilities.put("HEALTHCARE", 0.20);
-            swissProbabilities.put("INSURANCE", 0.10);
+            swissProbabilities.put("HEALTHCARE_GENERAL", 0.20);
+            swissProbabilities.put("UTILITIES_GENERAL", 0.10);
         }
         
         // Create random collection for action selection
@@ -308,69 +308,69 @@ public class SwissClient extends Client {
         double stdDev = 0;
         
         switch (action) {
-            case "FOOD_GROCERIES":
-                baseAmount = 45.0; // CHF
-                stdDev = 15.0;
+            case "INCOME_GENERAL":
+                baseAmount = 5000.0; // CHF (monthly salary)
+                stdDev = 1500.0;
                 break;
-            case "FOOD_RESTAURANT":
-                baseAmount = 25.0; // CHF
-                stdDev = 12.0;
-                break;
-            case "TRANSPORT_PUBLIC":
-                baseAmount = 8.5; // CHF
-                stdDev = 5.0;
-                break;
-            case "TRANSPORT_PRIVATE":
-                baseAmount = 15.0; // CHF
-                stdDev = 8.0;
-                break;
-            case "HEALTHCARE":
-                baseAmount = 120.0; // CHF
-                stdDev = 80.0;
-                break;
-            case "SHOPPING_CLOTHES":
-                baseAmount = 85.0; // CHF
-                stdDev = 45.0;
-                break;
-            case "SHOPPING_ELECTRONICS":
-                baseAmount = 250.0; // CHF
-                stdDev = 150.0;
-                break;
-            case "ENTERTAINMENT":
-                baseAmount = 35.0; // CHF
-                stdDev = 20.0;
-                break;
-            case "HOUSING":
-                baseAmount = 1800.0; // CHF
+            case "HOUSING_GENERAL":
+                baseAmount = 1800.0; // CHF (rent/mortgage)
                 stdDev = 600.0;
                 break;
-            case "INSURANCE":
-                baseAmount = 200.0; // CHF
+            case "GENERAL_EXPENSES_DAILY":
+                baseAmount = 45.0; // CHF (daily groceries/small items)
+                stdDev = 15.0;
+                break;
+            case "TRAVEL_GENERAL":
+                baseAmount = 150.0; // CHF (travel expenses)
                 stdDev = 100.0;
                 break;
-            case "EDUCATION":
-                baseAmount = 500.0; // CHF
-                stdDev = 300.0;
+            case "OTHER_GENERAL":
+                baseAmount = 25.0; // CHF (miscellaneous)
+                stdDev = 15.0;
                 break;
-            case "TRAVEL":
-                baseAmount = 150.0; // CHF
+            case "SHOPPING_ELECTRONICS":
+                baseAmount = 250.0; // CHF (electronics)
+                stdDev = 150.0;
+                break;
+            case "SHOPPING_BOOKS":
+                baseAmount = 35.0; // CHF (books)
+                stdDev = 20.0;
+                break;
+            case "SHOPPING_CLOTHING":
+                baseAmount = 85.0; // CHF (clothing)
+                stdDev = 45.0;
+                break;
+            case "HEALTHCARE_GENERAL":
+                baseAmount = 120.0; // CHF (healthcare)
+                stdDev = 80.0;
+                break;
+            case "TRANSPORTATION_FUEL":
+                baseAmount = 80.0; // CHF (fuel)
+                stdDev = 30.0;
+                break;
+            case "TRANSPORTATION_PUBLIC":
+                baseAmount = 8.5; // CHF (public transport)
+                stdDev = 5.0;
+                break;
+            case "FOOD_DINING_LUNCH":
+                baseAmount = 25.0; // CHF (lunch)
+                stdDev = 12.0;
+                break;
+            case "TAXES_GENERAL":
+                baseAmount = 800.0; // CHF (taxes)
+                stdDev = 400.0;
+                break;
+            case "UTILITIES_GENERAL":
+                baseAmount = 200.0; // CHF (utilities)
                 stdDev = 100.0;
                 break;
-            case "CASH_WITHDRAWAL":
-                baseAmount = 100.0; // CHF
-                stdDev = 50.0;
+            case "ENTERTAINMENT_STREAMING":
+                baseAmount = 25.0; // CHF (streaming subscriptions)
+                stdDev = 15.0;
                 break;
-            case "CASH_DEPOSIT":
-                baseAmount = 500.0; // CHF
-                stdDev = 300.0;
-                break;
-            case "BANK_TRANSFER":
-                baseAmount = 1000.0; // CHF
-                stdDev = 500.0;
-                break;
-            case "CREDIT_CARD_PAYMENT":
-                baseAmount = 75.0; // CHF
-                stdDev = 40.0;
+            case "ENTERTAINMENT_MOBILE":
+                baseAmount = 60.0; // CHF (mobile phone)
+                stdDev = 30.0;
                 break;
             default:
                 baseAmount = 50.0;
