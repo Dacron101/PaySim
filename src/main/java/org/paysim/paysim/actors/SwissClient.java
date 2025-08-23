@@ -60,6 +60,8 @@ public class SwissClient extends Client {
     private int lastStreetParadeDay = -1;
     private int lastFasnachtDay = -1;
     private int lastChristmasShoppingDay = -1;
+    private int lastBlackFridayShoppingDay = -1;
+    private int lastBackToSchoolShoppingDay = -1;
     private int lastMealDay = -1;
     private int lastCreditCardPaymentDay = -1;
     
@@ -99,6 +101,11 @@ public class SwissClient extends Client {
     private int lastServiceBillingDay = -1;
     private int lastTransportBillingDay = -1;
     private int lastHousingBillingDay = -1;
+    private int lastUtilitiesBillingDay = -1;
+    private int lastCashWithdrawalDay = -1;
+    private int lastBankFeeDay = -1;
+    private int lastInsuranceDay = -1;
+    private int lastShoppingDay = -1;
     
     // Cognitive bias and psychological pattern fields
     private Map<String, Double> categoryAnchors = new HashMap<>(); // First major purchase in each category
@@ -140,6 +147,13 @@ public class SwissClient extends Client {
     private boolean hasLunchCheck = false; // Employer lunch check benefit
     private String region = "German"; // Swiss region (German, French, Italian)
     private String preferredLanguage = "German"; // Preferred language for transactions
+    
+    // Habit flags - very few people have these habits, but if they do, they're consistent
+    private boolean hasMorningCoffeeHabit = false;
+    private boolean hasLunchSnackHabit = false;
+    private boolean hasCigaretteHabit = false;
+    private boolean hasSingleTicketHabit = false;
+    private boolean hasAperoHabit = false;
     
     // Inner class for expense splitting
     private static class ExpenseSplit {
@@ -463,86 +477,30 @@ public class SwissClient extends Client {
      * Initialize advanced behavioral and technical features
      */
     private void initializeAdvancedFeatures(MersenneTwisterFast random) {
-        // Cognitive bias initialization
-        subscriptionPriceSensitivity = 0.8 + random.nextDouble() * 0.4; // 0.8 to 1.2 (loss aversion)
-        isFollowingHerdBehavior = random.nextDouble() < 0.25; // 25% follow trends
+        // Cognitive biases
+        isFollowingHerdBehavior = random.nextDouble() < 0.15; // 15% follow herd behavior
         
-        // Forgotten subscriptions (5-15% of people have unused subscriptions)
-        if (random.nextDouble() < 0.10) {
-            String[] subscriptionTypes = {"Gym", "Streaming", "Software", "Magazine", "Music"};
-            int numForgotten = 1 + random.nextInt(3); // 1-3 forgotten subscriptions
-            for (int i = 0; i < numForgotten; i++) {
-                forgottenSubscriptions.add(subscriptionTypes[random.nextInt(subscriptionTypes.length)]);
+        // Forgotten subscriptions (realistic for Swiss)
+        if (random.nextDouble() < 0.08) { // 8% have forgotten subscriptions
+            String[] possibleSubscriptions = {"Gym Membership", "Magazine", "App Subscription", "Insurance Add-on"};
+            int numSubscriptions = 1 + random.nextInt(2); // 1-2 forgotten subscriptions
+            for (int i = 0; i < numSubscriptions; i++) {
+                forgottenSubscriptions.add(possibleSubscriptions[random.nextInt(possibleSubscriptions.length)]);
             }
         }
         
-        // Goal-oriented saving (20% of people are in saving mode)
-        if (random.nextDouble() < 0.20) {
-            isInSavingMode = true;
-            savingModeDuration = 3 + random.nextInt(9); // 3-12 months
-            String[] goalTypes = {"Vacation", "Car", "House", "Electronics", "Education"};
-            savingsGoalType = goalTypes[random.nextInt(goalTypes.length)];
-            savingsGoal = 1000 + random.nextDouble() * 9000; // 1000-10000 CHF
-        }
+        // Saving mode (goal-oriented behavior)
+        isInSavingMode = random.nextDouble() < 0.12; // 12% are actively saving
         
-        // Inter-personal transactions (30% have shared accounts, 20% have partners)
-        hasSharedAccount = random.nextDouble() < 0.30;
-        if (random.nextDouble() < 0.20) {
-            // Generate a partner person ID
-            partnerPersonId = "P" + String.format("%08d", random.nextInt(100000000)) + "_" + random.nextInt(10000);
-        }
-        
-        // Financial product lifecycle
-        hasNewCreditCard = random.nextDouble() < 0.15; // 15% have new credit cards
-        if (hasNewCreditCard) {
-            creditCardIntroPeriod = 30 + random.nextInt(90); // 30-120 days intro period
-        }
-        
+        // Active loans
         hasActiveLoan = random.nextDouble() < 0.25; // 25% have active loans
-        if (hasActiveLoan) {
-            loanRemainingMonths = 6 + random.nextInt(42); // 6-48 months remaining
-            monthlyLoanPayment = 200 + random.nextDouble() * 800; // 200-1000 CHF monthly
-        }
         
-        // Technical transaction patterns
-        useCardNotPresent = random.nextDouble() < 0.40; // 40% prefer online/CNP transactions
-        
-        // Geospatial clustering
-        String[] locations = {"Zurich", "Geneva", "Basel", "Bern", "Lausanne", "St. Gallen", "Lucerne", "Lugano"};
-        homeLocation = locations[random.nextInt(locations.length)];
-        workLocation = locations[random.nextInt(locations.length)];
-        
-        // Multi-currency and travel
-        isFrequentTraveler = random.nextDouble() < 0.20; // 20% travel frequently
-        if (isFrequentTraveler) {
-            preferredForeignCurrency = random.nextDouble() < 0.6 ? "EUR" : "USD";
-        }
-        
-        // Swiss-specific advanced features
-        hasPillar3a = random.nextDouble() < 0.60; // 60% have Pillar 3a accounts
-        usesEBill = random.nextDouble() < 0.70; // 70% use eBill system
-        isCrossBorderShopper = random.nextDouble() < 0.35; // 35% shop cross-border
-        
-        if (isCrossBorderShopper) {
-            String[] countries = {"Germany", "France", "Italy"};
-            preferredCrossBorderCountry = countries[random.nextInt(countries.length)];
-        }
-        
-        hasSBBEasyRide = random.nextDouble() < 0.20; // 20% use SBB EasyRide
-        hasLunchCheck = random.nextDouble() < 0.20; // 20% have lunch check benefits
-        
-        // Regional and linguistic variations
-        double regionRand = random.nextDouble();
-        if (regionRand < 0.70) {
-            region = "German";
-            preferredLanguage = "German";
-        } else if (regionRand < 0.85) {
-            region = "French";
-            preferredLanguage = "French";
-        } else {
-            region = "Italian";
-            preferredLanguage = "Italian";
-        }
+        // Habit flags - very rare, but consistent if present
+        hasMorningCoffeeHabit = random.nextDouble() < 0.005; // 0.5% have morning coffee habit
+        hasLunchSnackHabit = random.nextDouble() < 0.004; // 0.4% have lunch snack habit
+        hasCigaretteHabit = random.nextDouble() < 0.003; // 0.3% have cigarette habit
+        hasSingleTicketHabit = random.nextDouble() < 0.002; // 0.2% have single ticket habit
+        hasAperoHabit = random.nextDouble() < 0.006; // 0.6% have apéro habit
     }
     
     /**
@@ -764,6 +722,11 @@ public class SwissClient extends Client {
             executeIncome(paySim, step, random);
         }
         
+        // 1b. PAYDAY SPLURGE (1-3 days after salary)
+        if (shouldHavePaydaySplurge(step, random)) {
+            executePaydaySplurge(paySim, step, random);
+        }
+        
         // 2. 13TH SALARY (November/December for subset)
         if (shouldReceive13thSalary(step, random)) {
             execute13thSalary(paySim, step, random);
@@ -788,14 +751,54 @@ public class SwissClient extends Client {
             executeDinner(paySim, step, random);
         }
         
+        // 5b. MORNING COFFEE (weekdays only)
+        if (shouldBuyMorningCoffee(step, random)) {
+            executeMorningCoffee(paySim, step, random);
+        }
+        
+        // 5c. LUNCH BREAK SNACK (weekdays only)
+        if (shouldBuyLunchSnack(step, random)) {
+            executeLunchSnack(paySim, step, random);
+        }
+        
+        // 5d. SINGLE TRANSPORT TICKET (occasional use)
+        if (shouldBuySingleTicket(step, random)) {
+            executeSingleTicket(paySim, step, random);
+        }
+        
+        // 5e. FRIDAY CIGARETTES (for smokers)
+        if (shouldBuyCigarettes(step, random)) {
+            executeCigarettePurchase(paySim, step, random);
+        }
+        
         // 6. MONTHLY SERVICES (with billing jitter)
         if (shouldPayMonthlyServices(step, random)) {
             executeMonthlyServices(paySim, step, random);
         }
         
-        // 7. HOUSING & UTILITIES (monthly with jitter)
+        // 7. HOUSING (monthly with jitter)
         if (shouldPayHousing(step, random)) {
             executeHousingBilling(paySim, step, random);
+        }
+        
+        // 7b. UTILITIES (monthly with jitter, separate from housing)
+        if (shouldPayUtilities(step, random)) {
+            executeUtilitiesBilling(paySim, step, random);
+        }
+        
+        // 7c. CASH WITHDRAWAL (monthly)
+        if (shouldMakeCashWithdrawal(step, random)) {
+            executeCashWithdrawal(paySim, step, random);
+        }
+        
+        // 7d. BANK FEES (monthly)
+        if (shouldPayBankFees(step, random)) {
+            executeBankFee(paySim, step, random);
+        }
+        
+        // 7e. INSURANCE (monthly, same company)
+        if (shouldPayInsurance(step, random)) {
+            executeInsurance(paySim, step, random);
         }
         
         // 8. FUEL (car owners only, weekly)
@@ -939,42 +942,29 @@ public class SwissClient extends Client {
     }
     
     /**
-     * Determine if person should shop for groceries (1-2 times per week)
+     * Determine if person should shop for groceries (1-2 times per week, persona-specific)
      */
     private boolean shouldShopForGroceries(int step, MersenneTwisterFast random) {
         int daysSinceLastGrocery = step - lastGroceryDay;
-        if (daysSinceLastGrocery < 3) return false; // Minimum 3 days between shops
+        if (daysSinceLastGrocery < 3) return false; // Minimum 3 days
         
-        // Calculate day of week (0-6, where 0=Monday)
-        int dayOfWeek = (step % 7);
+        // Weekend bias for large grocery shopping
+        int dayOfWeek = step % 7; // 0-6 for days of week
+        boolean isWeekend = dayOfWeek >= 5; // Friday (5) and Saturday (6)
         
-        // Weekend bias for grocery shopping (higher probability on weekends)
-        double weekendMultiplier = (dayOfWeek >= 5) ? 1.5 : 1.0;
-        
-        // Age-based grocery shopping probability (2-3 times per week since Swiss cook at home)
         double baseProbability;
-        if (ageGroup.equals("YOUNG")) {
-            baseProbability = 0.25; // ~1.75 times per week (young people cook at home)
-        } else if (ageGroup.equals("MIDDLE")) {
-            baseProbability = 0.30; // ~2.1 times per week (middle-aged cook at home)
-        } else { // SENIOR
-            baseProbability = 0.35; // ~2.45 times per week (seniors cook at home)
+        if (persona.equals("FAMILY")) {
+            baseProbability = 0.25; // Families shop more frequently
+        } else if (persona.equals("STUDENT")) {
+            baseProbability = 0.20; // Students shop moderately
+        } else {
+            baseProbability = 0.22; // Others shop moderately
         }
         
-        // Income adjustment
-        if (incomeLevel.equals("HIGH")) {
-            baseProbability *= 0.8; // High income = less frequent shopping (bigger baskets)
-        } else if (incomeLevel.equals("LOW")) {
-            baseProbability *= 1.2; // Low income = more frequent shopping (smaller baskets)
+        // Weekend boost for large shopping
+        if (isWeekend) {
+            baseProbability *= 1.5; // 50% more likely on weekends
         }
-        
-        // Family status adjustment
-        if (hasKids) {
-            baseProbability *= 1.3; // Families shop more frequently
-        }
-        
-        // Apply weekend multiplier
-        baseProbability *= weekendMultiplier;
         
         return random.nextDouble() < baseProbability;
     }
@@ -1015,6 +1005,16 @@ public class SwissClient extends Client {
     }
     
     /**
+     * Execute lunch (persona and weekday dependent)
+     */
+    private void executeLunch(PaySim paySim, int step, MersenneTwisterFast random) {
+        double amount = pickSwissAmount(random, "FOOD_DINING_LUNCH", null);
+        String merchant = getCategorySpecificMerchant(random, "FOOD_DINING_LUNCH", persona);
+        makeSwissTransaction(paySim, step, "FOOD_DINING_LUNCH", amount, merchant);
+        lastMealDay = step;
+    }
+    
+    /**
      * Determine if person should have dinner (weekdays, max 1 per day)
      */
     private boolean shouldHaveDinner(int step, MersenneTwisterFast random) {
@@ -1050,6 +1050,16 @@ public class SwissClient extends Client {
     }
     
     /**
+     * Execute dinner (persona and weekday dependent)
+     */
+    private void executeDinner(PaySim paySim, int step, MersenneTwisterFast random) {
+        double amount = pickSwissAmount(random, "FOOD_DINING_DINNER", null);
+        String merchant = getCategorySpecificMerchant(random, "FOOD_DINING_DINNER", persona);
+        makeSwissTransaction(paySim, step, "FOOD_DINING_DINNER", amount, merchant);
+        lastMealDay = step;
+    }
+    
+    /**
      * Determine if person should go on holiday (2 per year)
      */
     private boolean shouldGoOnHoliday(int step, MersenneTwisterFast random) {
@@ -1082,24 +1092,28 @@ public class SwissClient extends Client {
     }
     
     /**
-     * Determine if person should go shopping (occasional)
+     * Determine if person should go shopping (occasional, weekend-biased)
      */
     private boolean shouldGoShopping(int step, MersenneTwisterFast random) {
-        // Age-based shopping probability
-        double baseProbability;
-        if (ageGroup.equals("YOUNG")) {
-            baseProbability = 0.06; // 6% chance per day (young people shop more)
-        } else if (ageGroup.equals("MIDDLE")) {
-            baseProbability = 0.05; // 5% chance per day (middle-aged moderate)
-        } else { // SENIOR
-            baseProbability = 0.04; // 4% chance per day (seniors shop less)
+        int daysSinceLastShopping = step - lastShoppingDay;
+        if (daysSinceLastShopping < 7) return false; // Minimum 7 days
+        
+        // Weekend bias for shopping
+        int dayOfWeek = step % 7; // 0-6 for days of week
+        boolean isWeekend = dayOfWeek >= 5; // Friday (5) and Saturday (6)
+        
+        double baseProbability = 0.15; // Base 15% chance per week
+        
+        // Weekend boost for shopping
+        if (isWeekend) {
+            baseProbability *= 2.0; // 2x more likely on weekends
         }
         
-        // Income adjustment
-        if (incomeLevel.equals("HIGH")) {
-            baseProbability *= 1.3; // High income = more shopping
-        } else if (incomeLevel.equals("LOW")) {
-            baseProbability *= 0.7; // Low income = less shopping
+        // Persona adjustments
+        if (persona.equals("YOUNG_PROF")) {
+            baseProbability *= 1.3; // Young professionals shop more
+        } else if (persona.equals("STUDENT")) {
+            baseProbability *= 0.7; // Students shop less
         }
         
         return random.nextDouble() < baseProbability;
@@ -1217,16 +1231,43 @@ public class SwissClient extends Client {
     }
     
     /**
-     * Determine if person should buy fuel (car owners only)
+     * Determine if person should pay utilities (monthly with jitter)
+     */
+    private boolean shouldPayUtilities(int step, MersenneTwisterFast random) {
+        int daysSinceLastUtilities = step - lastUtilitiesBillingDay;
+        if (daysSinceLastUtilities < 28) return false;
+        
+        // Utilities are paid 15th-20th of month (with jitter) - different from housing
+        int dayOfMonth = (step % 30) + 1;
+        int jitter = random.nextInt(3) - 1; // -1 to +1 days
+        int actualDay = dayOfMonth + jitter;
+        
+        return actualDay >= 15 && actualDay <= 20;
+    }
+    
+    /**
+     * Determine if person should buy fuel (car owners only, persona-dependent)
      */
     private boolean shouldBuyFuel(int step, MersenneTwisterFast random) {
         if (!hasCar) return false;
         
-        int daysSinceLastFuel = step - lastFuelDay;
-        if (daysSinceLastFuel < 7) return false; // Minimum 7 days
-        
-        // Fuel every 7-10 days
-        return daysSinceLastFuel >= (7 + random.nextInt(4));
+        // Reduce fuel frequency for public transport users
+        if (persona.equals("URBAN_TRANSPORT")) {
+            // Urban transport users rarely use their car - fuel every 3-4 weeks
+            int daysSinceLastFuel = step - lastFuelDay;
+            if (daysSinceLastFuel < 21) return false; // Minimum 21 days
+            return daysSinceLastFuel >= (21 + random.nextInt(7)); // 21-28 days
+        } else if (persona.equals("SUBURBAN_CAR")) {
+            // Suburban car owners use car more frequently - fuel every 1-2 weeks
+            int daysSinceLastFuel = step - lastFuelDay;
+            if (daysSinceLastFuel < 7) return false; // Minimum 7 days
+            return daysSinceLastFuel >= (7 + random.nextInt(7)); // 7-14 days
+        } else {
+            // Others: moderate usage - fuel every 2-3 weeks
+            int daysSinceLastFuel = step - lastFuelDay;
+            if (daysSinceLastFuel < 14) return false; // Minimum 14 days
+            return daysSinceLastFuel >= (14 + random.nextInt(7)); // 14-21 days
+        }
     }
     
     /**
@@ -1367,6 +1408,18 @@ public class SwissClient extends Client {
     }
     
     private boolean shouldGoBlackFridayShopping(int step, MersenneTwisterFast random) {
+        // Black Friday happens only once per year
+        int daysSinceLastBlackFriday = step - lastBlackFridayShoppingDay;
+        if (daysSinceLastBlackFriday < 300) return false; // Minimum 300 days between Black Fridays
+        
+        // Only allow Black Friday shopping on one specific day in November
+        int dayOfYear = step % 365;
+        if (dayOfYear < 300 || dayOfYear > 330) return false; // November only
+        
+        // Black Friday is typically the last Friday of November (around day 320-325)
+        int dayOfWeek = step % 7;
+        if (dayOfWeek != 5) return false; // Friday only (day 5)
+        
         // Age-based Black Friday shopping probability
         double baseProbability;
         if (ageGroup.equals("YOUNG")) {
@@ -1416,11 +1469,34 @@ public class SwissClient extends Client {
         // Only families with kids
         if (!hasKids) return false;
         
-        // Age-based back-to-school shopping (only for middle-aged with kids)
-        if (!ageGroup.equals("MIDDLE")) return false;
+        // Back-to-school shopping happens only a few times in August-September, not throughout the period
+        int daysSinceLastBackToSchool = step - lastBackToSchoolShoppingDay;
+        if (daysSinceLastBackToSchool < 7) return false; // Minimum 7 days between shopping trips
         
-        // 85% of families with school-age kids do back-to-school shopping
-        return random.nextDouble() < 0.85;
+        // Only allow back-to-school shopping in August-September (steps 210-270)
+        int dayOfYear = step % 365;
+        if (dayOfYear < 210 || dayOfYear > 270) return false;
+        
+        // Much lower probability - back-to-school is occasional, not guaranteed
+        double baseProbability = 0.08; // 8% chance per week (was 85% per day)
+        
+        // Age-based adjustments (all ages with kids can do back-to-school shopping)
+        if (ageGroup.equals("YOUNG")) {
+            baseProbability *= 0.8; // Young parents shop less
+        } else if (ageGroup.equals("MIDDLE")) {
+            baseProbability *= 1.0; // Middle-aged parents (normal)
+        } else { // SENIOR
+            baseProbability *= 0.7; // Senior parents shop less
+        }
+        
+        // Income adjustment
+        if (incomeLevel.equals("LOW")) {
+            baseProbability *= 1.2; // Low income families shop more (need deals)
+        } else if (incomeLevel.equals("HIGH")) {
+            baseProbability *= 0.8; // High income families shop less (can afford year-round)
+        }
+        
+        return random.nextDouble() < baseProbability;
     }
     
     private boolean shouldGoFasnacht(int step, MersenneTwisterFast random) {
@@ -1527,11 +1603,11 @@ public class SwissClient extends Client {
     }
     
     private boolean shouldPaySerafe(int step, MersenneTwisterFast random) {
-        // Serafe is paid quarterly (every 90 days)
+        // Serafe is paid annually (every 365 days)
         int daysSinceLastSerafe = step - lastSerafePaymentDay;
-        if (daysSinceLastSerafe < 80) return false;
+        if (daysSinceLastSerafe < 350) return false;
         
-        return daysSinceLastSerafe >= 90;
+        return daysSinceLastSerafe >= 365;
     }
     
     private boolean shouldPayHealthInsurance(int step, MersenneTwisterFast random) {
@@ -1550,31 +1626,38 @@ public class SwissClient extends Client {
         return daysSinceLastTravelcard >= 365;
     }
     
+    /**
+     * Determine if person should go for apéro (Thursday/Friday only)
+     */
     private boolean shouldGoApero(int step, MersenneTwisterFast random) {
-        // Apéro culture: 5-7 PM on weekdays, especially Thursdays and Fridays
-        int dayOfWeek = step % 7;
-        if (dayOfWeek >= 5) return false; // No Apéro on weekends
+        // Only on Thursday (4) and Friday (5)
+        int dayOfWeek = step % 7; // 0-6 for days of week
+        if (dayOfWeek != 4 && dayOfWeek != 5) return false; // Thursday = 4, Friday = 5
         
         // Prevent multiple apéros on the same day
         if (step == lastAperoDay) return false;
         
-        // Much lower base probability - apéro is occasional, not daily
-        double baseProbability = 0.03; // 3% base probability (was 20%)
-        if (dayOfWeek == 3 || dayOfWeek == 4) { // Thursday or Friday
-            baseProbability *= 2.5; // 2.5x higher (was 2.0x)
+        // If person has the habit, they do it 95% of the time (realistic consistency)
+        if (hasAperoHabit) {
+            return random.nextDouble() < 0.95; // 95% consistency
         }
         
-        // Only for social personas
-        if (persona.equals("YOUNG_PROF") || persona.equals("URBAN_TRANSPORT")) {
-            baseProbability *= 1.2; // Reduced from 1.5x
+        // Otherwise, very rare random occurrence (0.1% chance)
+        double baseProbability = 0.001;
+        
+        // Persona adjustments
+        if (persona.equals("YOUNG_PROF")) {
+            baseProbability *= 1.5; // Young professionals love apéro
+        } else if (persona.equals("STUDENT")) {
+            baseProbability *= 0.8; // Students go occasionally
+        } else if (persona.equals("FAMILY")) {
+            baseProbability *= 0.6; // Families go less often
         }
         
-        // Age adjustment - younger people go to apéro more
+        // Age adjustments
         if (ageGroup.equals("YOUNG")) {
-            baseProbability *= 1.3;
-        } else if (ageGroup.equals("MIDDLE")) {
-            baseProbability *= 1.0; // No change
-        } else { // SENIOR
+            baseProbability *= 1.4; // Young people go more
+        } else if (ageGroup.equals("SENIOR")) {
             baseProbability *= 0.7; // Seniors go less
         }
         
@@ -1582,22 +1665,22 @@ public class SwissClient extends Client {
     }
     
     private boolean shouldBuyGift(int step, MersenneTwisterFast random) {
-        // Gift purchases around birthdays and holidays
+        // Gift purchases around birthdays and holidays (reduced frequency)
         int dayOfYear = step % 365;
         
-        // Birthday month (2 weeks before and after)
+        // Birthday month (2 weeks before and after) - reduced from 30% to 15%
         String currentMonth = getCurrentMonth(dayOfYear);
         if (currentMonth.equals(birthdayMonth)) {
-            return random.nextDouble() < 0.30; // 30% chance in birthday month
+            return random.nextDouble() < 0.15; // 15% chance in birthday month (was 30%)
         }
         
-        // Holiday season (November-December)
+        // Holiday season (November-December) - reduced from 25% to 12%
         if (dayOfYear >= 300 && dayOfYear <= 365) {
-            return random.nextDouble() < 0.25; // 25% chance during holidays
+            return random.nextDouble() < 0.12; // 12% chance during holidays (was 25%)
         }
         
-        // Regular gift giving (5% chance per day)
-        return random.nextDouble() < 0.05;
+        // Regular gift giving - reduced from 5% to 2% per day
+        return random.nextDouble() < 0.02;
     }
     
     /**
@@ -1631,44 +1714,33 @@ public class SwissClient extends Client {
      * Execute grocery shopping (1-2 times per week)
      */
     private void executeGroceryShopping(PaySim paySim, int step, MersenneTwisterFast random) {
-        double amount = pickSwissAmount(random, "GENERAL_EXPENSES_DAILY", null);
+        // Determine if this is a small convenience purchase or large weekly shop
+        boolean isLargeShop = random.nextDouble() < 0.30; // 30% chance of large shop
         
-        // Swiss supermarket loyalty: 95% chance of using preferred store
-        String groceryStore;
-        if (random.nextDouble() < 0.95) {
-            // 95% chance: use preferred store (loyal customer)
-            groceryStore = preferredGroceryStore;
+        String action = "GENERAL_EXPENSES_DAILY";
+        double amount;
+        String merchant;
+        
+        if (isLargeShop) {
+            // Large weekly shop at major supermarkets
+            amount = 80.0 + random.nextDouble() * 120.0; // CHF 80-200 for large shop
+            if (random.nextDouble() < 0.60) {
+                merchant = "Coop"; // 60% at Coop
+            } else {
+                merchant = "Migros"; // 40% at Migros
+            }
         } else {
-            // 5% chance: occasionally try other stores
-            String[] alternativeStores = {"Coop", "Migros", "Denner", "Aldi", "Lidl"};
-            groceryStore = alternativeStores[random.nextInt(alternativeStores.length)];
-            
-            // Don't pick the same store as preferred (that would be redundant)
-            while (groceryStore.equals(preferredGroceryStore)) {
-                groceryStore = alternativeStores[random.nextInt(alternativeStores.length)];
+            // Small convenience purchase
+            amount = 15.0 + random.nextDouble() * 35.0; // CHF 15-50 for small purchase
+            if (random.nextDouble() < 0.70) {
+                merchant = "Coop Pronto"; // 70% at convenience stores
+            } else {
+                merchant = "Volg"; // 30% at Volg
             }
         }
         
-        makeSwissTransaction(paySim, step, "GENERAL_EXPENSES_DAILY", amount, groceryStore);
+        makeSwissTransaction(paySim, step, action, amount, merchant);
         lastGroceryDay = step;
-    }
-    
-    /**
-     * Execute lunch (weekdays)
-     */
-    private void executeLunch(PaySim paySim, int step, MersenneTwisterFast random) {
-        double amount = pickSwissAmount(random, "FOOD_DINING_LUNCH", null);
-        makeSwissTransaction(paySim, step, "FOOD_DINING_LUNCH", amount, preferredRestaurant);
-        lastMealDay = step;
-    }
-    
-    /**
-     * Execute dinner (weekdays)
-     */
-    private void executeDinner(PaySim paySim, int step, MersenneTwisterFast random) {
-        double amount = pickSwissAmount(random, "FOOD_DINING_DINNER", null);
-        makeSwissTransaction(paySim, step, "FOOD_DINING_DINNER", amount, preferredRestaurant);
-        lastMealDay = step;
     }
     
     /**
@@ -1691,12 +1763,21 @@ public class SwissClient extends Client {
      */
     private void executeHousingBilling(PaySim paySim, int step, MersenneTwisterFast random) {
         double housingAmount = pickSwissAmount(random, "HOUSING_GENERAL", null);
-        makeSwissTransaction(paySim, step, "HOUSING_GENERAL", housingAmount, "Local Utility");
-        
-        double utilitiesAmount = pickSwissAmount(random, "UTILITIES_GENERAL", null);
-        makeSwissTransaction(paySim, step, "UTILITIES_GENERAL", utilitiesAmount, "Electricity Provider");
+        String merchant = getCategorySpecificMerchant(random, "HOUSING_GENERAL", persona);
+        makeSwissTransaction(paySim, step, "HOUSING_GENERAL", housingAmount, merchant);
         
         lastHousingBillingDay = step;
+    }
+    
+    /**
+     * Execute utilities billing (monthly)
+     */
+    private void executeUtilitiesBilling(PaySim paySim, int step, MersenneTwisterFast random) {
+        double utilitiesAmount = pickSwissAmount(random, "UTILITIES_GENERAL", null);
+        String merchant = getCategorySpecificMerchant(random, "UTILITIES_GENERAL", persona);
+        makeSwissTransaction(paySim, step, "UTILITIES_GENERAL", utilitiesAmount, merchant);
+        
+        lastUtilitiesBillingDay = step;
     }
     
     /**
@@ -1713,7 +1794,7 @@ public class SwissClient extends Client {
      */
     private void executeShopping(PaySim paySim, int step, MersenneTwisterFast random) {
         // Random shopping category
-        String[] shoppingCategories = {"SHOPPING_CLOTHING", "SHOPPING_ELECTRONICS", "SHOPPING_BOOKS"};
+        String[] shoppingCategories = {"SHOPPING_CLOTHING", "SHOPPING_ELECTRONICS", "SHOPPING_BOOKS", "SHOPPING_JEWELRY"};
         String category = shoppingCategories[random.nextInt(shoppingCategories.length)];
         
         double amount = pickSwissAmount(random, category, null);
@@ -1745,7 +1826,8 @@ public class SwissClient extends Client {
             "INCOME_GENERAL", "HOUSING_GENERAL", "GENERAL_EXPENSES_DAILY", "TRAVEL_GENERAL",
             "OTHER_GENERAL", "SHOPPING_ELECTRONICS", "SHOPPING_BOOKS", "SHOPPING_CLOTHING",
             "HEALTHCARE_GENERAL", "TRANSPORTATION_FUEL", "TRANSPORTATION_PUBLIC", "FOOD_DINING_LUNCH",
-            "FOOD_DINING_DINNER", "TAXES_GENERAL", "UTILITIES_GENERAL", "ENTERTAINMENT_STREAMING", "ENTERTAINMENT_MOBILE"
+            "FOOD_DINING_DINNER", "TAXES_GENERAL", "UTILITIES_GENERAL", "ENTERTAINMENT_STREAMING", "ENTERTAINMENT_MOBILE",
+            "MORNING_COFFEE", "LUNCH_SNACK", "CIGARETTE_PURCHASE"
         };
         
         // Adjust probabilities based on Swiss context
@@ -1760,6 +1842,7 @@ public class SwissClient extends Client {
         swissProbabilities.put("SHOPPING_ELECTRONICS", 0.08);
         swissProbabilities.put("SHOPPING_BOOKS", 0.05);
         swissProbabilities.put("SHOPPING_CLOTHING", 0.10);
+        swissProbabilities.put("SHOPPING_JEWELRY", 0.03);
         swissProbabilities.put("HEALTHCARE_GENERAL", 0.08);
         swissProbabilities.put("TRANSPORTATION_FUEL", 0.08);
         swissProbabilities.put("TRANSPORTATION_PUBLIC", 0.12);
@@ -1769,6 +1852,9 @@ public class SwissClient extends Client {
         swissProbabilities.put("UTILITIES_GENERAL", 0.05);
         swissProbabilities.put("ENTERTAINMENT_STREAMING", 0.08);
         swissProbabilities.put("ENTERTAINMENT_MOBILE", 0.05);
+        swissProbabilities.put("MORNING_COFFEE", 0.12);
+        swissProbabilities.put("LUNCH_SNACK", 0.08);
+        swissProbabilities.put("CIGARETTE_PURCHASE", 0.03);
         
         // Adjust based on demographic attributes
         if (ageGroup.equals("YOUNG")) {
@@ -1800,6 +1886,7 @@ public class SwissClient extends Client {
         } else if (clientHash % 10 == 1) { // 10% prefer shopping
             swissProbabilities.put("SHOPPING_CLOTHING", 0.25);
             swissProbabilities.put("SHOPPING_ELECTRONICS", 0.15);
+            swissProbabilities.put("SHOPPING_JEWELRY", 0.08);
         } else if (clientHash % 10 == 2) { // 10% prefer transport
             swissProbabilities.put("TRANSPORTATION_PUBLIC", 0.25);
             swissProbabilities.put("TRANSPORTATION_FUEL", 0.20);
@@ -1863,6 +1950,10 @@ public class SwissClient extends Client {
                 baseAmount = 85.0; // CHF (clothing)
                 stdDev = 45.0;
                 break;
+            case "SHOPPING_JEWELRY":
+                baseAmount = 120.0; // CHF (jewelry - luxury items)
+                stdDev = 80.0;
+                break;
             case "HEALTHCARE_GENERAL":
                 baseAmount = 120.0; // CHF (healthcare)
                 stdDev = 80.0;
@@ -1888,8 +1979,8 @@ public class SwissClient extends Client {
                 stdDev = 400.0;
                 break;
             case "UTILITIES_GENERAL":
-                baseAmount = 200.0; // CHF (utilities)
-                stdDev = 100.0;
+                baseAmount = 360.0; // CHF (utilities - ~20% of typical rent of 1800 CHF)
+                stdDev = 80.0;
                 break;
             case "ENTERTAINMENT_STREAMING":
                 baseAmount = 25.0; // CHF (streaming subscriptions)
@@ -1898,6 +1989,18 @@ public class SwissClient extends Client {
             case "ENTERTAINMENT_MOBILE":
                 baseAmount = 60.0; // CHF (mobile phone)
                 stdDev = 30.0;
+                break;
+            case "MORNING_COFFEE":
+                baseAmount = 5.0; // CHF (coffee in Switzerland)
+                stdDev = 1.5;
+                break;
+            case "LUNCH_SNACK":
+                baseAmount = 5.5; // CHF (snack in Switzerland)
+                stdDev = 2.0;
+                break;
+            case "CIGARETTE_PURCHASE":
+                baseAmount = 15.0; // CHF (cigarette pack in Switzerland)
+                stdDev = 3.0;
                 break;
             default:
                 baseAmount = 50.0;
@@ -1937,11 +2040,107 @@ public class SwissClient extends Client {
         
         // Generate amount with normal distribution
         double amount = -1;
-        while (amount <= 0) {
+        while (amount <= 0.01) { // Ensure minimum amount of 0.01 CHF
             amount = random.nextGaussian() * stdDev + baseAmount;
         }
         
-        return amount;
+        // Apply Swiss psychological pricing and category adjustments
+        return applySwissPricing(amount, action, random);
+    }
+    
+    private double applySwissPricing(double rawAmount, String action, MersenneTwisterFast random) {
+        // Apply Swiss psychological pricing and category-specific adjustments
+        double adjustedAmount = rawAmount;
+        
+        // Category-specific price adjustments
+        switch (action) {
+            case "SHOPPING_ELECTRONICS":
+                // Electronics are expensive in Switzerland, especially Apple
+                adjustedAmount *= 1.8; // 80% more expensive than base
+                break;
+            case "SHOPPING_JEWELRY":
+                // Jewelry is luxury, but not as expensive as electronics
+                adjustedAmount *= 1.4; // 40% more expensive than base
+                break;
+            case "SHOPPING_CLOTHING":
+                // Clothing is moderately expensive
+                adjustedAmount *= 1.2; // 20% more expensive than base
+                break;
+            case "FOOD_DINING_DINNER":
+                // Restaurants are expensive in Switzerland
+                adjustedAmount *= 1.3; // 30% more expensive than base
+                break;
+            case "TRAVEL_GENERAL":
+                // Travel is expensive
+                adjustedAmount *= 1.5; // 50% more expensive than base
+                break;
+            case "HEALTHCARE_GENERAL":
+                // Healthcare is expensive
+                adjustedAmount *= 1.6; // 60% more expensive than base
+                break;
+            default:
+                // Other categories keep base pricing
+                break;
+        }
+        
+        // Apply psychological pricing (Swiss love round numbers and .99 endings)
+        double psychologicalPricing = random.nextDouble();
+        
+        if (psychologicalPricing < 0.4) {
+            // 40% chance: Round to nearest 10 (e.g., 199.90, 299.00)
+            adjustedAmount = Math.round(adjustedAmount / 10.0) * 10.0;
+        } else if (psychologicalPricing < 0.7) {
+            // 30% chance: .99 ending (e.g., 199.99, 299.99)
+            adjustedAmount = Math.floor(adjustedAmount) + 0.99;
+        } else if (psychologicalPricing < 0.85) {
+            // 15% chance: .90 ending (e.g., 199.90, 299.90)
+            adjustedAmount = Math.floor(adjustedAmount) + 0.90;
+        } else if (psychologicalPricing < 0.95) {
+            // 10% chance: .50 ending (e.g., 199.50, 299.50)
+            adjustedAmount = Math.floor(adjustedAmount) + 0.50;
+        }
+        // 5% chance: Keep original amount (natural pricing)
+        
+        double finalAmount = Math.round(adjustedAmount * 100.0) / 100.0; // Round to 2 decimal places
+        
+        // Safety check: ensure amount is always positive
+        if (finalAmount <= 0.01) {
+            finalAmount = 0.01; // Minimum amount
+        }
+        
+        return finalAmount;
+    }
+    
+    private double applyAppleStorePricing(double rawAmount, MersenneTwisterFast random) {
+        // Apple Store has premium pricing in Switzerland
+        double appleMultiplier = 2.2; // 120% more expensive than regular electronics
+        
+        // Apple products are typically more expensive
+        double adjustedAmount = rawAmount * appleMultiplier;
+        
+        // Apple loves psychological pricing even more
+        double psychologicalPricing = random.nextDouble();
+        
+        if (psychologicalPricing < 0.5) {
+            // 50% chance: .99 ending (Apple's favorite)
+            adjustedAmount = Math.floor(adjustedAmount) + 0.99;
+        } else if (psychologicalPricing < 0.8) {
+            // 30% chance: Round to nearest 10
+            adjustedAmount = Math.round(adjustedAmount / 10.0) * 10.0;
+        } else if (psychologicalPricing < 0.9) {
+            // 10% chance: .90 ending
+            adjustedAmount = Math.floor(adjustedAmount) + 0.90;
+        }
+        // 10% chance: Keep natural pricing
+        
+        double finalAmount = Math.round(adjustedAmount * 100.0) / 100.0;
+        
+        // Safety check: ensure amount is always positive
+        if (finalAmount <= 0.01) {
+            finalAmount = 0.01; // Minimum amount
+        }
+        
+        return finalAmount;
     }
     
     private void makeSwissTransaction(PaySim paySim, int step, String action, double amount) {
@@ -1951,6 +2150,17 @@ public class SwissClient extends Client {
     private void makeSwissTransaction(PaySim paySim, int step, String action, double amount, String companyName) {
         // Use provided company name or get realistic Swiss company name
         String swissCompanyName = (companyName != null) ? companyName : getSwissCompanyName(paySim.random, action);
+        
+        // Apply Apple Store premium pricing if applicable
+        double finalAmount = amount;
+        if (swissCompanyName.contains("Apple Store") || swissCompanyName.contains("Apple")) {
+            finalAmount = applyAppleStorePricing(amount, paySim.random);
+        }
+        
+        // Final safety check: ensure amount is always positive
+        if (finalAmount <= 0.00) {
+            finalAmount = 0.01; // Minimum amount
+        }
         
         // Create transaction with Person ID in the name
         String nameOrig = this.getPersonId() + "_" + this.getName();
@@ -1964,16 +2174,16 @@ public class SwissClient extends Client {
         
         if (isIncome) {
             // For income: add amount to balance
-            this.deposit(amount);
+            this.deposit(finalAmount);
         } else {
             // For expenses: withdraw amount from balance
-            isUnauthorizedOverdraft = this.withdraw(amount);
+            isUnauthorizedOverdraft = this.withdraw(finalAmount);
         }
         
         double newBalanceOrig = this.getBalance();
-        double newBalanceDest = amount;
+        double newBalanceDest = finalAmount;
         
-        Transaction transaction = new Transaction(step, action, amount, nameOrig, oldBalanceOrig,
+        Transaction transaction = new Transaction(step, action, finalAmount, nameOrig, oldBalanceOrig,
                                                newBalanceOrig, nameDest, oldBalanceDest, newBalanceDest);
         
         transaction.setUnauthorizedOverdraft(isUnauthorizedOverdraft);
@@ -2005,6 +2215,7 @@ public class SwissClient extends Client {
         String[] retailers = {"Digitec", "MediaMarkt", "Interdiscount", "Amazon", "Galaxus"};
         String retailer = retailers[random.nextInt(retailers.length)];
         makeSwissTransaction(paySim, step, "SHOPPING_ELECTRONICS", amount, retailer + " Black Friday");
+        lastBlackFridayShoppingDay = step;
     }
     
     private void executeChristmasShopping(PaySim paySim, int step, MersenneTwisterFast random) {
@@ -2020,6 +2231,7 @@ public class SwissClient extends Client {
         String[] stores = {"Coop", "Migros", "Manor", "H&M", "C&A", "School Supply Store"};
         String store = stores[random.nextInt(stores.length)];
         makeSwissTransaction(paySim, step, "SHOPPING_CLOTHING", amount, store + " Back to School");
+        lastBackToSchoolShoppingDay = step;
     }
     
     private void executeFasnacht(PaySim paySim, int step, MersenneTwisterFast random) {
@@ -2043,9 +2255,19 @@ public class SwissClient extends Client {
     
     private void executeTransport(PaySim paySim, int step, MersenneTwisterFast random) {
         if (persona.equals("URBAN_TRANSPORT")) {
-            // Daily transport for urban users
-            double amount = pickSwissAmount(random, "TRANSPORTATION_PUBLIC", null);
-            makeSwissTransaction(paySim, step, "TRANSPORTATION_PUBLIC", amount, preferredTransportService);
+            // Urban transport users: prefer monthly passes (80% chance) over single tickets (20% chance)
+            if (random.nextDouble() < 0.80) {
+                // Monthly pass (every 30 days)
+                if (step % 30 == 0) {
+                    double amount = pickSwissAmount(random, "TRANSPORTATION_PUBLIC", null) * 25; // Monthly pass
+                    makeSwissTransaction(paySim, step, "TRANSPORTATION_PUBLIC", amount, preferredTransportService + " Monthly Pass");
+                    lastTransportBillingDay = step;
+                }
+            } else {
+                // Single ticket (reduced frequency)
+                double amount = pickSwissAmount(random, "TRANSPORTATION_PUBLIC", null);
+                makeSwissTransaction(paySim, step, "TRANSPORTATION_PUBLIC", amount, preferredTransportService);
+            }
         } else {
             // Monthly pass for others
             if (step % 30 == 0) {
@@ -2320,5 +2542,421 @@ public class SwissClient extends Client {
             String[] coffeeShops = {"Starbucks", "Café de Paris", "Café Schober", "Café Odeon", "Café Central", "Local Coffee Shop"};
             favoriteCoffeeShop = coffeeShops[random.nextInt(coffeeShops.length)];
         }
+    }
+    
+    /**
+     * Get category-specific merchant based on persona and realistic Swiss preferences
+     */
+    private String getCategorySpecificMerchant(MersenneTwisterFast random, String action, String persona) {
+        double randomValue = random.nextDouble();
+        
+        switch (action) {
+            case "FOOD_DINING_LUNCH":
+                if (persona.equals("STUDENT")) {
+                    // Students prefer budget options
+                    if (randomValue < 0.50) return "Migros Restaurant";
+                    else if (randomValue < 0.80) return "Coop Restaurant";
+                    else if (randomValue < 0.90) return "Local Café";
+                    else return "Food Truck";
+                } else if (persona.equals("YOUNG_PROF")) {
+                    // Young professionals mix of casual and quality
+                    if (randomValue < 0.30) return "Starbucks";
+                    else if (randomValue < 0.60) return "Local Café";
+                    else if (randomValue < 0.80) return "Migros Restaurant";
+                    else return "Coop Restaurant";
+                } else {
+                    // Others prefer local options
+                    if (randomValue < 0.40) return "Local Café";
+                    else if (randomValue < 0.70) return "Migros Restaurant";
+                    else if (randomValue < 0.85) return "Coop Restaurant";
+                    else return "Starbucks";
+                }
+                
+            case "FOOD_DINING_DINNER":
+                if (persona.equals("YOUNG_PROF") || persona.equals("FAMILY")) {
+                    // Higher-end dining for young professionals and families
+                    if (randomValue < 0.25) return "Restaurant zum Kropf";
+                    else if (randomValue < 0.45) return "Italian Restaurant";
+                    else if (randomValue < 0.65) return "Swiss Restaurant";
+                    else if (randomValue < 0.80) return "Asian Restaurant";
+                    else return "Steakhouse";
+                } else {
+                    // More casual for others
+                    if (randomValue < 0.40) return "Italian Restaurant";
+                    else if (randomValue < 0.65) return "Swiss Restaurant";
+                    else if (randomValue < 0.80) return "Pizza Place";
+                    else return "Local Bistro";
+                }
+                
+            case "GENERAL_EXPENSES_DAILY":
+                // Grocery shopping with realistic store preferences
+                if (randomValue < 0.05) return "Volg"; // Small convenience purchases
+                else if (randomValue < 0.35) return "Coop Pronto"; // Medium convenience
+                else if (randomValue < 0.65) return "Coop"; // Major supermarket
+                else if (randomValue < 0.85) return "Migros"; // Major supermarket
+                else return "Aldi"; // Budget supermarket
+                
+            case "SHOPPING_ELECTRONICS":
+                if (randomValue < 0.30) return "Digitec";
+                else if (randomValue < 0.55) return "MediaMarkt";
+                else if (randomValue < 0.75) return "Interdiscount";
+                else if (randomValue < 0.90) return "Apple Store";
+                else return "Conrad";
+                
+            case "SHOPPING_CLOTHING":
+                if (randomValue < 0.25) return "H&M";
+                else if (randomValue < 0.45) return "Zalando";
+                else if (randomValue < 0.65) return "C&A";
+                else if (randomValue < 0.80) return "Manor";
+                else return "Orell Füssli";
+                
+            case "SHOPPING_JEWELRY":
+                if (randomValue < 0.40) return "Christ";
+                else if (randomValue < 0.70) return "Bucherer";
+                else if (randomValue < 0.85) return "Gübelin";
+                else return "Swiss Company";
+                
+            case "UTILITIES_GENERAL":
+                if (randomValue < 0.25) return "Swisscom";
+                else if (randomValue < 0.45) return "EWZ";
+                else if (randomValue < 0.65) return "BKW";
+                else if (randomValue < 0.80) return "IWB";
+                else return "Local Utility";
+                
+            case "HOUSING_GENERAL":
+                if (randomValue < 0.30) return "Livit AG";
+                else if (randomValue < 0.55) return "Wincasa";
+                else if (randomValue < 0.75) return "Mobimo";
+                else if (randomValue < 0.90) return "Swiss Prime Site";
+                else return "Local Property Management";
+                
+            case "GIFT_PURCHASE":
+                if (randomValue < 0.30) return "Galaxus";
+                else if (randomValue < 0.55) return "Zalando";
+                else if (randomValue < 0.75) return "Orell Füssli";
+                else if (randomValue < 0.90) return "Manor";
+                else return "Online Gift Store";
+                
+            default:
+                return getSwissCompanyName(random, action);
+        }
+    }
+    
+    /**
+     * Determine if person should have a payday splurge (1-3 days after salary)
+     */
+    private boolean shouldHavePaydaySplurge(int step, MersenneTwisterFast random) {
+        int daysSinceSalary = step - lastSalaryDay;
+        if (daysSinceSalary < 1 || daysSinceSalary > 3) return false; // Only 1-3 days after salary
+        
+        // 40% chance of payday splurge
+        double baseProbability = 0.40;
+        
+        // Persona adjustments
+        if (persona.equals("YOUNG_PROF")) {
+            baseProbability *= 1.5; // Young professionals splurge more
+        } else if (persona.equals("STUDENT")) {
+            baseProbability *= 0.3; // Students rarely splurge
+        } else if (persona.equals("FAMILY")) {
+            baseProbability *= 0.8; // Families splurge less
+        }
+        
+        return random.nextDouble() < baseProbability;
+    }
+    
+    /**
+     * Determine if person should make a cash withdrawal (monthly)
+     */
+    private boolean shouldMakeCashWithdrawal(int step, MersenneTwisterFast random) {
+        int daysSinceLastWithdrawal = step - lastCashWithdrawalDay;
+        if (daysSinceLastWithdrawal < 20) return false; // Minimum 20 days
+        
+        // 60% chance of monthly withdrawal
+        double baseProbability = 0.60;
+        
+        // Persona adjustments
+        if (persona.equals("YOUNG_PROF")) {
+            baseProbability *= 0.8; // Young professionals use less cash
+        } else if (persona.equals("SENIOR")) {
+            baseProbability *= 1.3; // Seniors use more cash
+        }
+        
+        return random.nextDouble() < baseProbability;
+    }
+    
+    /**
+     * Execute cash withdrawal (monthly)
+     */
+    private void executeCashWithdrawal(PaySim paySim, int step, MersenneTwisterFast random) {
+        // Standard withdrawal amounts: CHF 100 or 200
+        double amount = (random.nextDouble() < 0.7) ? 100.0 : 200.0;
+        
+        // Use Swiss bank names for ATMs
+        String[] swissBanks = {"UBS ATM", "Credit Suisse ATM", "PostFinance ATM", "Raiffeisen ATM", "ZKB ATM"};
+        String atm = swissBanks[random.nextInt(swissBanks.length)];
+        
+        makeSwissTransaction(paySim, step, "CASH_WITHDRAWAL", amount, atm);
+        lastCashWithdrawalDay = step;
+    }
+    
+    /**
+     * Determine if person should pay bank fees (monthly)
+     */
+    private boolean shouldPayBankFees(int step, MersenneTwisterFast random) {
+        int daysSinceLastBankFee = step - lastBankFeeDay;
+        if (daysSinceLastBankFee < 28) return false; // Minimum 28 days
+        
+        // 90% chance of monthly bank fee
+        double baseProbability = 0.90;
+        
+        return random.nextDouble() < baseProbability;
+    }
+    
+    /**
+     * Execute bank fee payment (monthly)
+     */
+    private void executeBankFee(PaySim paySim, int step, MersenneTwisterFast random) {
+        // Standard bank fee amounts: CHF 5-15
+        double amount = 5.0 + random.nextDouble() * 10.0; // CHF 5-15
+        
+        // Use the person's preferred bank
+        String bankName = preferredBank + " Bank Fee";
+        
+        makeSwissTransaction(paySim, step, "BANK_FEE", amount, bankName);
+        lastBankFeeDay = step;
+    }
+    
+    /**
+     * Determine if person should pay insurance (monthly, same company)
+     */
+    private boolean shouldPayInsurance(int step, MersenneTwisterFast random) {
+        int daysSinceLastInsurance = step - lastInsuranceDay;
+        if (daysSinceLastInsurance < 28) return false; // Minimum 28 days
+        
+        // 95% chance of monthly insurance payment
+        double baseProbability = 0.95;
+        
+        return random.nextDouble() < baseProbability;
+    }
+    
+    /**
+     * Execute insurance payment (monthly, same company)
+     */
+    private void executeInsurance(PaySim paySim, int step, MersenneTwisterFast random) {
+        // Insurance amount based on persona and age
+        double baseAmount = 150.0; // Base CHF 150
+        
+        if (persona.equals("YOUNG_PROF")) {
+            baseAmount *= 0.8; // Young professionals pay less
+        } else if (persona.equals("FAMILY")) {
+            baseAmount *= 1.3; // Families pay more
+        } else if (persona.equals("SENIOR")) {
+            baseAmount *= 1.2; // Seniors pay more
+        }
+        
+        // Add some variation
+        double amount = baseAmount + random.nextDouble() * 50.0;
+        
+        // Use the person's health insurance provider consistently
+        String insuranceCompany = healthInsuranceProvider + " Insurance";
+        
+        makeSwissTransaction(paySim, step, "INSURANCE", amount, insuranceCompany);
+        lastInsuranceDay = step;
+    }
+    
+    /**
+     * Determine if person should buy morning coffee (weekdays only)
+     */
+    private boolean shouldBuyMorningCoffee(int step, MersenneTwisterFast random) {
+        // Only on weekdays (Monday to Friday)
+        int dayOfWeek = step % 7; // 0-6 for days of week
+        if (dayOfWeek >= 5) return false; // No coffee on weekends
+        
+        // If person has the habit, they do it 95% of the time (realistic consistency)
+        if (hasMorningCoffeeHabit) {
+            return random.nextDouble() < 0.95; // 95% consistency
+        }
+        
+        // Otherwise, very rare random occurrence (0.1% chance)
+        double baseProbability = 0.001;
+        
+        // Persona adjustments
+        if (persona.equals("YOUNG_PROF")) {
+            baseProbability *= 1.3; // Young professionals drink more coffee
+        } else if (persona.equals("STUDENT")) {
+            baseProbability *= 0.7; // Students are more frugal
+        } else if (persona.equals("SENIOR")) {
+            baseProbability *= 0.8; // Seniors drink less coffee
+        }
+        
+        // Income adjustments
+        if (incomeLevel.equals("HIGH")) {
+            baseProbability *= 1.2; // High income = more coffee
+        } else if (incomeLevel.equals("LOW")) {
+            baseProbability *= 0.6; // Low income = less coffee
+        }
+        
+        return random.nextDouble() < baseProbability;
+    }
+    
+    /**
+     * Execute morning coffee purchase (weekdays only)
+     */
+    private void executeMorningCoffee(PaySim paySim, int step, MersenneTwisterFast random) {
+        // Small coffee amounts: CHF 3.50 - 6.50
+        double amount = 3.50 + random.nextDouble() * 3.0; // CHF 3.50-6.50
+        
+        // Swiss coffee chains and local cafes
+        String[] coffeePlaces = {"Starbucks", "Migros Coffee", "Coop Coffee", "Local Café", "Bakery", "Kiosk"};
+        String coffeePlace = coffeePlaces[random.nextInt(coffeePlaces.length)];
+        
+        makeSwissTransaction(paySim, step, "MORNING_COFFEE", amount, coffeePlace);
+    }
+    
+    /**
+     * Determine if person should buy cigarettes (Fridays only, for smokers)
+     */
+    private boolean shouldBuyCigarettes(int step, MersenneTwisterFast random) {
+        // Only on Fridays
+        int dayOfWeek = step % 7; // 0-6 for days of week
+        if (dayOfWeek != 4) return false; // Friday = 4
+        
+        // If person has the habit, they do it 95% of the time (realistic consistency)
+        if (hasCigaretteHabit) {
+            return random.nextDouble() < 0.95; // 95% consistency
+        }
+        
+        // Otherwise, very rare random occurrence (0.05% chance)
+        double baseProbability = 0.0005;
+        
+        // Persona adjustments
+        if (persona.equals("YOUNG_PROF")) {
+            baseProbability *= 0.8; // Young professionals smoke less
+        } else if (persona.equals("STUDENT")) {
+            baseProbability *= 1.2; // Students smoke more
+        } else if (persona.equals("SENIOR")) {
+            baseProbability *= 1.1; // Seniors smoke moderately
+        }
+        
+        // Age adjustments
+        if (ageGroup.equals("YOUNG")) {
+            baseProbability *= 1.3; // Young people smoke more
+        } else if (ageGroup.equals("SENIOR")) {
+            baseProbability *= 0.7; // Seniors smoke less
+        }
+        
+        return random.nextDouble() < baseProbability;
+    }
+    
+    /**
+     * Execute cigarette purchase (Fridays only)
+     */
+    private void executeCigarettePurchase(PaySim paySim, int step, MersenneTwisterFast random) {
+        // Cigarette pack prices in Switzerland: CHF 12-18
+        double amount = 12.0 + random.nextDouble() * 6.0; // CHF 12-18
+        
+        // Swiss gas stations and convenience stores
+        String[] cigarettePlaces = {"Shell", "Esso", "BP", "Migrol", "Coop Pronto", "Avia", "Kiosk"};
+        String cigarettePlace = cigarettePlaces[random.nextInt(cigarettePlaces.length)];
+        
+        makeSwissTransaction(paySim, step, "CIGARETTE_PURCHASE", amount, cigarettePlace);
+    }
+    
+    /**
+     * Determine if person should buy lunch break snack (weekdays only)
+     */
+    private boolean shouldBuyLunchSnack(int step, MersenneTwisterFast random) {
+        // Only on weekdays (Monday to Friday)
+        int dayOfWeek = step % 7; // 0-6 for days of week
+        if (dayOfWeek >= 5) return false; // No snacks on weekends
+        
+        // If person has the habit, they do it 95% of the time (realistic consistency)
+        if (hasLunchSnackHabit) {
+            return random.nextDouble() < 0.95; // 95% consistency
+        }
+        
+        // Otherwise, very rare random occurrence (0.08% chance)
+        double baseProbability = 0.0008;
+        
+        // Persona adjustments
+        if (persona.equals("YOUNG_PROF")) {
+            baseProbability *= 1.2; // Young professionals buy more snacks
+        } else if (persona.equals("STUDENT")) {
+            baseProbability *= 0.6; // Students are more frugal
+        } else if (persona.equals("FAMILY")) {
+            baseProbability *= 0.8; // Families bring lunch more often
+        }
+        
+        // Income adjustments
+        if (incomeLevel.equals("HIGH")) {
+            baseProbability *= 1.3; // High income = more snacks
+        } else if (incomeLevel.equals("LOW")) {
+            baseProbability *= 0.5; // Low income = fewer snacks
+        }
+        
+        return random.nextDouble() < baseProbability;
+    }
+    
+    /**
+     * Execute lunch break snack purchase (weekdays only)
+     */
+    private void executeLunchSnack(PaySim paySim, int step, MersenneTwisterFast random) {
+        // Small snack amounts: CHF 2.50 - 8.50
+        double amount = 2.50 + random.nextDouble() * 6.0; // CHF 2.50-8.50
+        
+        // Swiss convenience stores and bakeries
+        String[] snackPlaces = {"Migros", "Coop", "Bakery", "Kiosk", "Local Café", "Convenience Store"};
+        String snackPlace = snackPlaces[random.nextInt(snackPlaces.length)];
+        
+        makeSwissTransaction(paySim, step, "LUNCH_SNACK", amount, snackPlace);
+    }
+    
+    /**
+     * Determine if person should buy single public transport ticket (occasional use)
+     */
+    private boolean shouldBuySingleTicket(int step, MersenneTwisterFast random) {
+        // Only on weekdays (Monday to Friday)
+        int dayOfWeek = step % 7; // 0-6 for days of week
+        if (dayOfWeek >= 5) return false; // No single tickets on weekends
+        
+        // If person has the habit, they do it 95% of the time (realistic consistency)
+        if (hasSingleTicketHabit) {
+            return random.nextDouble() < 0.95; // 95% consistency
+        }
+        
+        // Otherwise, very rare random occurrence (0.06% chance)
+        double baseProbability = 0.0006;
+        
+        // Persona adjustments
+        if (persona.equals("URBAN_TRANSPORT")) {
+            baseProbability *= 0.3; // Urban transport users have monthly passes
+        } else if (persona.equals("SUBURBAN_CAR")) {
+            baseProbability *= 1.5; // Suburban car owners buy more single tickets
+        } else if (persona.equals("STUDENT")) {
+            baseProbability *= 1.2; // Students buy single tickets occasionally
+        }
+        
+        // Income adjustments
+        if (incomeLevel.equals("LOW")) {
+            baseProbability *= 1.3; // Low income = more single tickets
+        } else if (incomeLevel.equals("HIGH")) {
+            baseProbability *= 0.7; // High income = fewer single tickets
+        }
+        
+        return random.nextDouble() < baseProbability;
+    }
+    
+    /**
+     * Execute single public transport ticket purchase (occasional use)
+     */
+    private void executeSingleTicket(PaySim paySim, int step, MersenneTwisterFast random) {
+        // Single ticket prices in Switzerland: CHF 2.50 - 8.50
+        double amount = 2.50 + random.nextDouble() * 6.0; // CHF 2.50-8.50
+        
+        // Swiss public transport providers
+        String[] transportProviders = {"SBB", "VBZ", "TPG", "BVB", "PostAuto", "Tram", "Bus"};
+        String provider = transportProviders[random.nextInt(transportProviders.length)];
+        
+        makeSwissTransaction(paySim, step, "TRANSPORTATION_PUBLIC", amount, provider);
     }
 }
