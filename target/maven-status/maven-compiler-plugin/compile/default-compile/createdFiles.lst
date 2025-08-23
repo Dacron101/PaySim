@@ -5,6 +5,7 @@ org/paysim/paysim/actors/Client.class
 org/paysim/paysim/SwissSpendingSimulator.class
 org/paysim/paysim/actors/Fraudster.class
 org/paysim/paysim/actors/networkdrugs/DrugDealer.class
+org/paysim/paysim/actors/SwissClient$ExpenseSplit.class
 org/paysim/paysim/base/Transaction.class
 org/paysim/paysim/utils/DBase.class
 org/paysim/paysim/utils/RandomCollection.class

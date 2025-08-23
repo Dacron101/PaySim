@@ -13,6 +13,10 @@ import sim.util.distribution.Binomial;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SwissClient extends Client {
     private static final String CLIENT_IDENTIFIER = "SC";
@@ -89,6 +93,68 @@ public class SwissClient extends Client {
     private int lastHolidayDay = -1;
     private int lastServiceBillingDay = -1;
     private int lastTransportBillingDay = -1;
+    
+    // Cognitive bias and psychological pattern fields
+    private Map<String, Double> categoryAnchors = new HashMap<>(); // First major purchase in each category
+    private Map<String, Double> sourceBasedSpending = new HashMap<>(); // Different spending patterns by money source
+    private boolean isFollowingHerdBehavior = false; // Following trendy items
+    private double subscriptionPriceSensitivity = 1.0; // Loss aversion for price increases
+    private Set<String> forgottenSubscriptions = new HashSet<>(); // Active but unused subscriptions
+    private boolean isInSavingMode = false; // Goal-oriented saving phase
+    private int savingModeDuration = 0; // How long to save
+    private double savingsGoal = 0.0; // Target amount to save
+    private String savingsGoalType = ""; // What they're saving for
+    
+    // Inter-personal transaction fields
+    private boolean hasSharedAccount = false; // Family joint account
+    private String partnerPersonId = ""; // Partner's person ID for expense splitting
+    private List<ExpenseSplit> pendingExpenseSplits = new ArrayList<>(); // Pending reimbursements
+    
+    // Financial product lifecycle fields
+    private boolean hasNewCreditCard = false; // Credit card introductory offer period
+    private int creditCardIntroPeriod = 0; // Days remaining in intro period
+    private boolean hasActiveLoan = false; // Active loan repayment
+    private int loanRemainingMonths = 0; // Months remaining on loan
+    private double monthlyLoanPayment = 0.0; // Monthly loan payment amount
+    
+    // Technical transaction fields
+    private Map<String, Transaction> pendingAuthorizations = new HashMap<>(); // Authorization phase transactions
+    private boolean useCardNotPresent = false; // Card-not-present vs card-present patterns
+    private String homeLocation = ""; // Home location for geospatial clustering
+    private String workLocation = ""; // Work location for geospatial clustering
+    private boolean isFrequentTraveler = false; // Multi-currency transactions
+    private String preferredForeignCurrency = "EUR"; // Preferred foreign currency (EUR/USD)
+    
+    // Swiss-specific advanced fields
+    private boolean hasPillar3a = false; // Pillar 3a pension account
+    private boolean usesEBill = false; // Uses eBill system
+    private boolean isCrossBorderShopper = false; // Shops in neighboring countries
+    private String preferredCrossBorderCountry = "Germany"; // Germany, France, or Italy
+    private boolean hasSBBEasyRide = false; // SBB EasyRide user
+    private boolean hasLunchCheck = false; // Employer lunch check benefit
+    private String region = "German"; // Swiss region (German, French, Italian)
+    private String preferredLanguage = "German"; // Preferred language for transactions
+    
+    // Inner class for expense splitting
+    private static class ExpenseSplit {
+        private String description;
+        private double amount;
+        private String partnerPersonId;
+        private int step;
+        
+        public ExpenseSplit(String description, double amount, String partnerPersonId, int step) {
+            this.description = description;
+            this.amount = amount;
+            this.partnerPersonId = partnerPersonId;
+            this.step = step;
+        }
+        
+        // Getters
+        public String getDescription() { return description; }
+        public double getAmount() { return amount; }
+        public String getPartnerPersonId() { return partnerPersonId; }
+        public int getStep() { return step; }
+    }
     
     // Personal preferences (deterministic based on Person ID)
     private String preferredGroceryStore;
@@ -303,6 +369,9 @@ public class SwissClient extends Client {
         
         // Initialize life events
         initializeLifeEvents(random);
+        
+        // Initialize advanced behavioral and technical features
+        initializeAdvancedFeatures(random);
     }
     
     /**
@@ -385,6 +454,92 @@ public class SwissClient extends Client {
     }
     
     /**
+     * Initialize advanced behavioral and technical features
+     */
+    private void initializeAdvancedFeatures(MersenneTwisterFast random) {
+        // Cognitive bias initialization
+        subscriptionPriceSensitivity = 0.8 + random.nextDouble() * 0.4; // 0.8 to 1.2 (loss aversion)
+        isFollowingHerdBehavior = random.nextDouble() < 0.25; // 25% follow trends
+        
+        // Forgotten subscriptions (5-15% of people have unused subscriptions)
+        if (random.nextDouble() < 0.10) {
+            String[] subscriptionTypes = {"Gym", "Streaming", "Software", "Magazine", "Music"};
+            int numForgotten = 1 + random.nextInt(3); // 1-3 forgotten subscriptions
+            for (int i = 0; i < numForgotten; i++) {
+                forgottenSubscriptions.add(subscriptionTypes[random.nextInt(subscriptionTypes.length)]);
+            }
+        }
+        
+        // Goal-oriented saving (20% of people are in saving mode)
+        if (random.nextDouble() < 0.20) {
+            isInSavingMode = true;
+            savingModeDuration = 3 + random.nextInt(9); // 3-12 months
+            String[] goalTypes = {"Vacation", "Car", "House", "Electronics", "Education"};
+            savingsGoalType = goalTypes[random.nextInt(goalTypes.length)];
+            savingsGoal = 1000 + random.nextDouble() * 9000; // 1000-10000 CHF
+        }
+        
+        // Inter-personal transactions (30% have shared accounts, 20% have partners)
+        hasSharedAccount = random.nextDouble() < 0.30;
+        if (random.nextDouble() < 0.20) {
+            // Generate a partner person ID
+            partnerPersonId = "P" + String.format("%08d", random.nextInt(100000000)) + "_" + random.nextInt(10000);
+        }
+        
+        // Financial product lifecycle
+        hasNewCreditCard = random.nextDouble() < 0.15; // 15% have new credit cards
+        if (hasNewCreditCard) {
+            creditCardIntroPeriod = 30 + random.nextInt(90); // 30-120 days intro period
+        }
+        
+        hasActiveLoan = random.nextDouble() < 0.25; // 25% have active loans
+        if (hasActiveLoan) {
+            loanRemainingMonths = 6 + random.nextInt(42); // 6-48 months remaining
+            monthlyLoanPayment = 200 + random.nextDouble() * 800; // 200-1000 CHF monthly
+        }
+        
+        // Technical transaction patterns
+        useCardNotPresent = random.nextDouble() < 0.40; // 40% prefer online/CNP transactions
+        
+        // Geospatial clustering
+        String[] locations = {"Zurich", "Geneva", "Basel", "Bern", "Lausanne", "St. Gallen", "Lucerne", "Lugano"};
+        homeLocation = locations[random.nextInt(locations.length)];
+        workLocation = locations[random.nextInt(locations.length)];
+        
+        // Multi-currency and travel
+        isFrequentTraveler = random.nextDouble() < 0.20; // 20% travel frequently
+        if (isFrequentTraveler) {
+            preferredForeignCurrency = random.nextDouble() < 0.6 ? "EUR" : "USD";
+        }
+        
+        // Swiss-specific advanced features
+        hasPillar3a = random.nextDouble() < 0.60; // 60% have Pillar 3a accounts
+        usesEBill = random.nextDouble() < 0.70; // 70% use eBill system
+        isCrossBorderShopper = random.nextDouble() < 0.35; // 35% shop cross-border
+        
+        if (isCrossBorderShopper) {
+            String[] countries = {"Germany", "France", "Italy"};
+            preferredCrossBorderCountry = countries[random.nextInt(countries.length)];
+        }
+        
+        hasSBBEasyRide = random.nextDouble() < 0.20; // 20% use SBB EasyRide
+        hasLunchCheck = random.nextDouble() < 0.20; // 20% have lunch check benefits
+        
+        // Regional and linguistic variations
+        double regionRand = random.nextDouble();
+        if (regionRand < 0.70) {
+            region = "German";
+            preferredLanguage = "German";
+        } else if (regionRand < 0.85) {
+            region = "French";
+            preferredLanguage = "French";
+        } else {
+            region = "Italian";
+            preferredLanguage = "Italian";
+        }
+    }
+    
+    /**
      * Initialize life events
      */
     private void initializeLifeEvents(MersenneTwisterFast random) {
@@ -460,6 +615,47 @@ public class SwissClient extends Client {
     public double getSavingsRate() { return savingsRate; }
     public boolean isInPaydaySplurgeMode() { return isInPaydaySplurgeMode; }
     public boolean isInBrokeMode() { return isInBrokeMode; }
+    
+    // Getters for cognitive bias and psychological patterns
+    public Map<String, Double> getCategoryAnchors() { return categoryAnchors; }
+    public Map<String, Double> getSourceBasedSpending() { return sourceBasedSpending; }
+    public boolean isFollowingHerdBehavior() { return isFollowingHerdBehavior; }
+    public double getSubscriptionPriceSensitivity() { return subscriptionPriceSensitivity; }
+    public Set<String> getForgottenSubscriptions() { return forgottenSubscriptions; }
+    public boolean isInSavingMode() { return isInSavingMode; }
+    public int getSavingModeDuration() { return savingModeDuration; }
+    public double getSavingsGoal() { return savingsGoal; }
+    public String getSavingsGoalType() { return savingsGoalType; }
+    
+    // Getters for inter-personal transactions
+    public boolean hasSharedAccount() { return hasSharedAccount; }
+    public String getPartnerPersonId() { return partnerPersonId; }
+    public List<ExpenseSplit> getPendingExpenseSplits() { return pendingExpenseSplits; }
+    
+    // Getters for financial product lifecycle
+    public boolean hasNewCreditCard() { return hasNewCreditCard; }
+    public int getCreditCardIntroPeriod() { return creditCardIntroPeriod; }
+    public boolean hasActiveLoan() { return hasActiveLoan; }
+    public int getLoanRemainingMonths() { return loanRemainingMonths; }
+    public double getMonthlyLoanPayment() { return monthlyLoanPayment; }
+    
+    // Getters for technical transaction fields
+    public Map<String, Transaction> getPendingAuthorizations() { return pendingAuthorizations; }
+    public boolean useCardNotPresent() { return useCardNotPresent; }
+    public String getHomeLocation() { return homeLocation; }
+    public String getWorkLocation() { return workLocation; }
+    public boolean isFrequentTraveler() { return isFrequentTraveler; }
+    public String getPreferredForeignCurrency() { return preferredForeignCurrency; }
+    
+    // Getters for Swiss-specific advanced fields
+    public boolean hasPillar3a() { return hasPillar3a; }
+    public boolean usesEBill() { return usesEBill; }
+    public boolean isCrossBorderShopper() { return isCrossBorderShopper; }
+    public String getPreferredCrossBorderCountry() { return preferredCrossBorderCountry; }
+    public boolean hasSBBEasyRide() { return hasSBBEasyRide; }
+    public boolean hasLunchCheck() { return hasLunchCheck; }
+    public String getRegion() { return region; }
+    public String getPreferredLanguage() { return preferredLanguage; }
     
     /**
      * Get realistic Swiss company name for transaction type
@@ -735,9 +931,27 @@ public class SwissClient extends Client {
         int daysSinceLastGrocery = step - lastGroceryDay;
         if (daysSinceLastGrocery < 3) return false; // Minimum 3 days between shops
         
-        // 1-2 times per week probability
-        double groceryProbability = 0.25; // 25% chance per day after 3 days
-        return random.nextDouble() < groceryProbability;
+        // Age-based grocery shopping probability
+        double baseProbability;
+        if (ageGroup.equals("YOUNG")) {
+            baseProbability = 0.20; // 20% chance per day (young people shop less frequently)
+        } else if (ageGroup.equals("MIDDLE")) {
+            baseProbability = 0.30; // 30% chance per day (middle-aged shop more)
+        } else { // SENIOR
+            baseProbability = 0.25; // 25% chance per day (seniors shop moderately)
+        }
+        
+        // Family status adjustment
+        if (hasKids) {
+            baseProbability *= 1.3; // Families shop more frequently
+        }
+        
+        // Income adjustment
+        if (incomeLevel.equals("LOW")) {
+            baseProbability *= 1.2; // Low income = more frequent small shops
+        }
+        
+        return random.nextDouble() < baseProbability;
     }
     
     /**
@@ -747,7 +961,24 @@ public class SwissClient extends Client {
         int dayOfWeek = (step % 7); // 0-6 for days of week
         if (dayOfWeek >= 5) return false; // No lunch on weekends
         
-        return random.nextDouble() < 0.70; // 70% chance on weekdays
+        // Age-based lunch probability
+        double baseProbability;
+        if (ageGroup.equals("YOUNG")) {
+            baseProbability = 0.75; // 75% chance (young people eat out more)
+        } else if (ageGroup.equals("MIDDLE")) {
+            baseProbability = 0.70; // 70% chance (middle-aged moderate)
+        } else { // SENIOR
+            baseProbability = 0.60; // 60% chance (seniors eat out less)
+        }
+        
+        // Income adjustment
+        if (incomeLevel.equals("HIGH")) {
+            baseProbability *= 1.1; // High income = more restaurant lunches
+        } else if (incomeLevel.equals("LOW")) {
+            baseProbability *= 0.8; // Low income = fewer restaurant lunches
+        }
+        
+        return random.nextDouble() < baseProbability;
     }
     
     /**
@@ -757,33 +988,78 @@ public class SwissClient extends Client {
         int daysSinceLastHoliday = step - lastHolidayDay;
         if (daysSinceLastHoliday < 60) return false; // Minimum 60 days between holidays
         
-        // 2 holidays per year = ~0.0055 probability per day
-        double holidayProbability = 0.0055;
-        return random.nextDouble() < holidayProbability;
+        // Age-based holiday probability
+        double baseProbability;
+        if (ageGroup.equals("YOUNG")) {
+            baseProbability = 0.004; // Young people: ~1.5 holidays per year
+        } else if (ageGroup.equals("MIDDLE")) {
+            baseProbability = 0.006; // Middle-aged: ~2.2 holidays per year
+        } else { // SENIOR
+            baseProbability = 0.008; // Seniors: ~3 holidays per year (more time)
+        }
+        
+        // Income adjustment
+        if (incomeLevel.equals("HIGH")) {
+            baseProbability *= 1.4; // High income = more holidays
+        } else if (incomeLevel.equals("LOW")) {
+            baseProbability *= 0.6; // Low income = fewer holidays
+        }
+        
+        // Family status adjustment
+        if (hasKids) {
+            baseProbability *= 1.2; // Families go on more holidays
+        }
+        
+        return random.nextDouble() < baseProbability;
     }
     
     /**
      * Determine if person should go shopping (occasional)
      */
     private boolean shouldGoShopping(int step, MersenneTwisterFast random) {
-        // Shopping happens occasionally, not daily
-        return random.nextDouble() < 0.05; // 5% chance per day
+        // Age-based shopping probability
+        double baseProbability;
+        if (ageGroup.equals("YOUNG")) {
+            baseProbability = 0.06; // 6% chance per day (young people shop more)
+        } else if (ageGroup.equals("MIDDLE")) {
+            baseProbability = 0.05; // 5% chance per day (middle-aged moderate)
+        } else { // SENIOR
+            baseProbability = 0.04; // 4% chance per day (seniors shop less)
+        }
+        
+        // Income adjustment
+        if (incomeLevel.equals("HIGH")) {
+            baseProbability *= 1.3; // High income = more shopping
+        } else if (incomeLevel.equals("LOW")) {
+            baseProbability *= 0.7; // Low income = less shopping
+        }
+        
+        return random.nextDouble() < baseProbability;
     }
     
     /**
      * Determine if person should visit healthcare (based on age and health)
      */
     private boolean shouldVisitHealthcare(int step, MersenneTwisterFast random) {
-        double baseProbability = 0.01; // 1% base probability
+        double baseProbability = 0.008; // 0.8% base probability
         
-        // Increase probability for seniors
-        if (ageGroup.equals("SENIOR")) {
-            baseProbability *= 3.0;
+        // Age-based healthcare probability
+        if (ageGroup.equals("YOUNG")) {
+            baseProbability = 0.005; // 0.5% for young people
+        } else if (ageGroup.equals("MIDDLE")) {
+            baseProbability = 0.008; // 0.8% for middle-aged
+        } else { // SENIOR
+            baseProbability = 0.020; // 2% for seniors (more health issues)
         }
         
-        // Increase probability for low income (more health issues)
+        // Income adjustment
         if (incomeLevel.equals("LOW")) {
-            baseProbability *= 1.5;
+            baseProbability *= 1.4; // Low income = more health issues
+        }
+        
+        // Location adjustment
+        if (location.equals("RURAL")) {
+            baseProbability *= 0.8; // Rural areas have fewer healthcare visits
         }
         
         return random.nextDouble() < baseProbability;
@@ -941,53 +1217,153 @@ public class SwissClient extends Client {
         return actualDay >= 13 && actualDay <= 17;
     }
     
-    // Seasonal decision methods
+    // Seasonal decision methods with age-based variations
     private boolean shouldGoSkiing(int step, MersenneTwisterFast random) {
-        // 20% of people go skiing in winter
-        if (random.nextDouble() > 0.20) return false;
+        // Age-based skiing probability
+        double baseProbability;
+        if (ageGroup.equals("YOUNG")) {
+            baseProbability = 0.15; // 15% of young people go skiing
+        } else if (ageGroup.equals("MIDDLE")) {
+            baseProbability = 0.25; // 25% of middle-aged go skiing
+        } else { // SENIOR
+            baseProbability = 0.10; // 10% of seniors go skiing
+        }
         
-        // Only if they haven't gone recently
+        // Income adjustment
+        if (incomeLevel.equals("HIGH")) {
+            baseProbability *= 1.5; // High income = more skiing
+        } else if (incomeLevel.equals("LOW")) {
+            baseProbability *= 0.6; // Low income = less skiing
+        }
+        
+        // Location adjustment
+        if (location.equals("URBAN")) {
+            baseProbability *= 0.8; // Urban people ski less
+        } else if (location.equals("RURAL")) {
+            baseProbability *= 1.3; // Rural people ski more
+        }
+        
+        if (random.nextDouble() > baseProbability) return false;
+        
+        // Only if they haven't gone recently (age-based minimum intervals)
         int daysSinceLastHoliday = step - lastHolidayDay;
-        return daysSinceLastHoliday >= 30;
+        int minInterval = ageGroup.equals("YOUNG") ? 45 : (ageGroup.equals("MIDDLE") ? 30 : 60);
+        return daysSinceLastHoliday >= minInterval;
     }
     
     private boolean shouldGoOnSummerHoliday(int step, MersenneTwisterFast random) {
-        // 40% of people go on summer holiday
-        if (random.nextDouble() > 0.40) return false;
+        // Age-based summer holiday probability
+        double baseProbability;
+        if (ageGroup.equals("YOUNG")) {
+            baseProbability = 0.35; // 35% of young people go on summer holiday
+        } else if (ageGroup.equals("MIDDLE")) {
+            baseProbability = 0.45; // 45% of middle-aged go on summer holiday
+        } else { // SENIOR
+            baseProbability = 0.50; // 50% of seniors go on summer holiday (more time)
+        }
         
+        // Income adjustment
+        if (incomeLevel.equals("HIGH")) {
+            baseProbability *= 1.4; // High income = more holidays
+        } else if (incomeLevel.equals("LOW")) {
+            baseProbability *= 0.7; // Low income = fewer holidays
+        }
+        
+        // Family status adjustment
+        if (hasKids) {
+            baseProbability *= 1.2; // Families go on more holidays
+        }
+        
+        if (random.nextDouble() > baseProbability) return false;
+        
+        // Age-based minimum intervals between holidays
         int daysSinceLastHoliday = step - lastHolidayDay;
-        return daysSinceLastHoliday >= 60;
+        int minInterval = ageGroup.equals("YOUNG") ? 75 : (ageGroup.equals("MIDDLE") ? 60 : 45);
+        return daysSinceLastHoliday >= minInterval;
     }
     
     private boolean shouldGoBlackFridayShopping(int step, MersenneTwisterFast random) {
-        // 30% of people do Black Friday shopping
-        return random.nextDouble() < 0.30;
+        // Age-based Black Friday shopping probability
+        double baseProbability;
+        if (ageGroup.equals("YOUNG")) {
+            baseProbability = 0.40; // 40% of young people do Black Friday
+        } else if (ageGroup.equals("MIDDLE")) {
+            baseProbability = 0.35; // 35% of middle-aged do Black Friday
+        } else { // SENIOR
+            baseProbability = 0.20; // 20% of seniors do Black Friday
+        }
+        
+        // Income adjustment
+        if (incomeLevel.equals("LOW")) {
+            baseProbability *= 1.3; // Low income = more Black Friday deals
+        }
+        
+        return random.nextDouble() < baseProbability;
     }
     
     private boolean shouldGoChristmasShopping(int step, MersenneTwisterFast random) {
-        // 60% of people do Christmas shopping
-        return random.nextDouble() < 0.60;
+        // Age-based Christmas shopping probability
+        double baseProbability;
+        if (ageGroup.equals("YOUNG")) {
+            baseProbability = 0.55; // 55% of young people do Christmas shopping
+        } else if (ageGroup.equals("MIDDLE")) {
+            baseProbability = 0.70; // 70% of middle-aged do Christmas shopping
+        } else { // SENIOR
+            baseProbability = 0.65; // 65% of seniors do Christmas shopping
+        }
+        
+        // Family status adjustment
+        if (hasKids) {
+            baseProbability *= 1.2; // Families do more Christmas shopping
+        }
+        
+        return random.nextDouble() < baseProbability;
     }
     
     private boolean shouldGoBackToSchoolShopping(int step, MersenneTwisterFast random) {
         // Only families with kids
         if (!hasKids) return false;
         
-        // 80% of families do back-to-school shopping
-        return random.nextDouble() < 0.80;
+        // Age-based back-to-school shopping (only for middle-aged with kids)
+        if (!ageGroup.equals("MIDDLE")) return false;
+        
+        // 85% of families with school-age kids do back-to-school shopping
+        return random.nextDouble() < 0.85;
     }
     
     private boolean shouldGoFasnacht(int step, MersenneTwisterFast random) {
-        // 25% of people go to Fasnacht
-        return random.nextDouble() < 0.25;
+        // Age-based Fasnacht probability
+        double baseProbability;
+        if (ageGroup.equals("YOUNG")) {
+            baseProbability = 0.35; // 35% of young people go to Fasnacht
+        } else if (ageGroup.equals("MIDDLE")) {
+            baseProbability = 0.25; // 25% of middle-aged go to Fasnacht
+        } else { // SENIOR
+            baseProbability = 0.15; // 15% of seniors go to Fasnacht
+        }
+        
+        // Location adjustment (Fasnacht is mainly in German-speaking regions)
+        if (location.equals("URBAN")) {
+            baseProbability *= 1.2; // Urban people more likely to attend
+        }
+        
+        return random.nextDouble() < baseProbability;
     }
     
     private boolean shouldGoStreetParade(int step, MersenneTwisterFast random) {
-        // 15% of people go to Street Parade (mainly young people)
+        // Age-based Street Parade probability (mainly young people)
         if (ageGroup.equals("YOUNG")) {
-            return random.nextDouble() < 0.30; // 30% of young people
+            double baseProbability = 0.35; // 35% of young people
+            // Income adjustment
+            if (incomeLevel.equals("HIGH")) {
+                baseProbability *= 1.2; // High income young people more likely
+            }
+            return random.nextDouble() < baseProbability;
+        } else if (ageGroup.equals("MIDDLE")) {
+            return random.nextDouble() < 0.08; // 8% of middle-aged
+        } else { // SENIOR
+            return random.nextDouble() < 0.02; // 2% of seniors
         }
-        return random.nextDouble() < 0.05; // 5% of others
     }
     
     // Advanced financial pattern decision methods
@@ -1357,6 +1733,28 @@ public class SwissClient extends Client {
             baseAmount *= 0.7;
             stdDev *= 0.8;
         }
+        
+        // Add age-based variations
+        if (ageGroup.equals("YOUNG")) {
+            baseAmount *= 0.9; // Young people spend less
+            stdDev *= 1.2; // More variation in spending
+        } else if (ageGroup.equals("SENIOR")) {
+            baseAmount *= 1.1; // Seniors spend more
+            stdDev *= 0.9; // Less variation in spending
+        }
+        
+        // Add persona-based variations
+        if (persona.equals("STUDENT")) {
+            baseAmount *= 0.6; // Students spend much less
+            stdDev *= 1.5; // High variation
+        } else if (persona.equals("FAMILY")) {
+            baseAmount *= 1.3; // Families spend more
+            stdDev *= 1.1; // Moderate variation
+        }
+        
+        // Add random jitter (±10% to make amounts less predictable)
+        double jitter = 0.9 + random.nextDouble() * 0.2; // 0.9 to 1.1
+        baseAmount *= jitter;
         
         // Generate amount with normal distribution
         double amount = -1;

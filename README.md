@@ -326,3 +326,143 @@ The Swiss Spending Simulator is an enhanced version of PaySim specifically desig
 - **Categories**: 40+ transaction categories (vs. previous 30+)
 - **Companies**: 200+ Swiss companies (vs. previous 150+)
 - **Patterns**: 50+ distinct behavioral patterns (vs. previous 25+)
+
+## 🧠 **Deeper Behavioral & Psychological Patterns**
+
+### **Cognitive Biases in Spending**
+Incorporate principles from behavioral economics to make personas more realistic:
+
+#### **1. Anchoring Effect**
+- **First Purchase Anchor**: Initial significant purchase in a category sets spending expectations
+- **Example**: CHF 800 smartphone purchase makes future purchases in that range seem reasonable
+- **Implementation**: Track first major purchase per category and adjust future spending limits
+
+#### **2. Mental Accounting**
+- **Source-Based Spending**: Money treated differently based on source
+- **Bonus Spending**: CHF 500 bonus spent frivolously on luxury items
+- **Salary Spending**: Same amount from salary spent on essentials
+- **Implementation**: Different spending patterns for different income sources
+
+#### **3. Herd Behavior**
+- **Trendy Items**: Spending spikes on popular new products or services
+- **Social Influence**: Restaurant choices driven by popularity rather than individual preference
+- **Implementation**: Global popularity variables affecting spending probabilities
+
+#### **4. Loss Aversion**
+- **Subscription Cancellations**: Higher likelihood of canceling after price increases
+- **Price Sensitivity**: Even nominal increases trigger behavioral changes
+- **Implementation**: Price change events with increased cancellation probability
+
+### **"Forgotten" Subscriptions**
+- **Active but Unused**: Gym memberships, streaming services, software subscriptions
+- **Common Financial Drain**: Real-world pattern of unused recurring payments
+- **Implementation**: 5-15% of subscriptions show no related activity
+
+### **Goal-Oriented Saving & Spending**
+- **Saving Phases**: Reduced spending across multiple categories for several months
+- **Planned Purchases**: Large purchases after saving periods (vacations, down payments, cars)
+- **Implementation**: Multi-month saving cycles followed by spending spikes
+
+### **Inter-Personal Transactions (Family/Couples)**
+- **Shared Accounts**: Joint accounts with two salary credits and mixed family spending
+- **Expense Splitting**: One person pays for large items, receives P2P transfers from partners
+- **Implementation**: Family personas with coordinated spending and reimbursement patterns
+
+### **Lifecycle of Financial Products**
+- **Credit Card Introductory Offers**: Concentrated spending on new cards to meet bonus requirements
+- **Loan Repayments**: Fixed monthly payments for cars/electronics over specific durations (e.g., 36 months)
+
+## 🔧 **Advanced Technical & Data Generation Nuances**
+
+### **Transaction Status Lifecycle**
+Instead of just generating "posted" transactions, model the complete lifecycle:
+
+#### **1. Authorization Phase**
+- **Initial Hold**: Funds placed on hold (e.g., gas station pump)
+- **Pending Status**: Transaction visible but not final
+- **Implementation**: Generate authorization transactions with pending status
+
+#### **2. Settlement/Posting Phase**
+- **Final Amount**: Confirmed amount debited (may differ from authorization)
+- **Timing**: 1-3 days after authorization
+- **Implementation**: Settlement transactions replacing or updating authorizations
+
+#### **3. Description Enrichment**
+- **Raw Names**: "SP * MERCHANT NAME" at authorization
+- **Clean Names**: "Merchant Name" upon settlement
+- **Implementation**: Two-phase merchant name generation
+
+### **Correlated Spending**
+Create realistic dependencies between certain purchases:
+
+#### **1. Event-Based Correlations**
+- **Ticket Purchases**: Followed by transport and restaurant spending in event city
+- **Example**: Ticketcorner purchase → increased SBB, restaurant, and bar spending
+- **Implementation**: Event date clustering of related transactions
+
+#### **2. Project-Based Correlations**
+- **DIY Projects**: Clustered purchases at hardware stores over weekends
+- **Example**: Jumbo, Hornbach purchases clustered together
+- **Implementation**: Multi-day project spending patterns
+
+### **Card-Present vs. Card-Not-Present (CNP)**
+- **Physical POS**: In-store transactions with different patterns
+- **Online/CNP**: Higher likelihood of subscriptions, food delivery, e-commerce
+- **Implementation**: Different transaction types with distinct behavioral patterns
+
+### **Multi-Currency Simulation**
+- **Foreign Transactions**: EUR, USD transactions for travelers and cross-border shoppers
+- **FX Fees**: Separate foreign exchange fee transactions
+- **Conversion Rates**: Embedded conversion rates in final CHF amounts
+- **Implementation**: Currency-specific transaction generation with realistic rates
+
+### **Geospatial Clustering**
+- **Home Location**: Evening and weekend transactions cluster around home
+- **Work Location**: Weekday transactions (lunch, coffee) cluster around work
+- **Implementation**: Location-based transaction clustering for realistic patterns
+
+## 🇨🇭 **Richer Swiss Context & Specifics**
+
+### **Pillar 3a Pension Payments**
+- **Annual Lump-Sum**: December transfers to dedicated pension accounts
+- **Monthly Standing Orders**: Regular contributions throughout the year
+- **Common Pattern**: Very typical Swiss financial behavior
+- **Implementation**: Pension-related transaction patterns
+
+### **The "eBill" System**
+- **Batch Payments**: Multiple bill payments initiated on same day each month
+- **E-banking Integration**: When users log into online banking
+- **Billers**: Insurance, utilities, tax authorities, subscriptions
+- **Implementation**: Monthly batch payment patterns
+
+### **Cross-Border Shopping**
+- **Price Differences**: Switzerland's high domestic prices drive cross-border shopping
+- **Target Countries**: Germany, France, Italy
+- **Merchants**: Edeka, DM, Carrefour, Fnac
+- **Implementation**: Euro transactions with foreign merchant patterns
+
+### **Specific Merchant & Payment Behaviors**
+
+#### **1. SBB EasyRide**
+- **Tap-and-Go**: Small, variable SBB charges aggregated and billed later
+- **Daily/Monthly Billing**: Instead of daily tickets
+- **Implementation**: Variable transport charges with delayed billing
+
+#### **2. Lunch Checks**
+- **Employer Benefits**: Monthly "top-up" from salary
+- **Restaurant Network**: Spending at specific employer-approved restaurants
+- **Implementation**: Employer benefit transaction patterns
+
+### **Regional & Linguistic Variations**
+
+#### **1. French-Speaking Regions**
+- **Retailers**: More transactions with French retailers (Carrefour, Fnac)
+- **Cultural Patterns**: Different spending preferences and timing
+
+#### **2. Italian-Speaking Ticino**
+- **Cash Preference**: Slightly higher preference for cash transactions
+- **Regional Merchants**: Local Italian-Swiss business patterns
+
+#### **3. Mobile Payment Variations**
+- **Regional Preferences**: Different mobile payment app adoption by region
+- **Banking Affiliation**: Payment method preferences vary by bank
