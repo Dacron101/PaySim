@@ -26,14 +26,28 @@ public class SwissSpendingSimulator extends PaySim {
 
     public static void main(String[] args) {
         System.out.println("SWISS SPENDING SIMULATOR v" + SWISS_SIM_VERSION);
-        if (args.length < 4) {
-            args = DEFAULT_ARGS;
-        }
-        int nbTimesRepeat = Integer.parseInt(args[3]);
+        int nbTimesRepeat = 1;
         String propertiesFile = "";
+        
+        // Parse arguments first
         for (int x = 0; x < args.length - 1; x++) {
             if (args[x].equals("-file")) {
                 propertiesFile = args[x + 1];
+                break; // Found the file, no need to continue
+            }
+        }
+        
+        // If no properties file specified, use defaults
+        if (propertiesFile.isEmpty()) {
+            propertiesFile = "SwissSpending.properties";
+        }
+        
+        // Parse nbTimesRepeat if provided
+        if (args.length >= 1) {
+            try {
+                nbTimesRepeat = Integer.parseInt(args[args.length - 1]);
+            } catch (NumberFormatException e) {
+                // Use default value
             }
         }
         Parameters.initParameters(propertiesFile);
@@ -71,40 +85,77 @@ public class SwissSpendingSimulator extends PaySim {
     @Override
     protected void initActors() {
         System.out.println("Init - Seed " + seed());
+        
+        // Check if we want small output (1 person) or large output
+        boolean isSmallOutput = Parameters.nbClients <= 5;
+        
+        if (isSmallOutput) {
+            // SMALL OUTPUT VERSION: Use properties file values for testing
+            System.out.println("SMALL OUTPUT MODE - Using properties file values");
+            System.out.println("NbMerchants: " + Parameters.nbMerchants);
+            System.out.println("NbClients: " + Parameters.nbClients);
+            System.out.println("NbBanks: " + Parameters.nbBanks);
+            
+            //Add the merchants
+            for (int i = 0; i < Parameters.nbMerchants; i++) {
+                Merchant m = new Merchant(generateId());
+                merchants.add(m);
+            }
 
-        // LARGE OUTPUT VERSION: Use hardcoded large parameters for ~1M lines
-        int largeNbMerchants = 10000;
-        int largeNbClients = 20000;
-        int largeNbBanks = 20;
-        int largeMultiplier = 20;
+            //Add the fraudsters
+            for (int i = 0; i < Parameters.nbFraudsters; i++) {
+                Fraudster f = new Fraudster(generateId());
+                fraudsters.add(f);
+                schedule.scheduleRepeating(f);
+            }
 
-        //Add the merchants
-        System.out.println("NbMerchants: " + largeNbMerchants);
-        for (int i = 0; i < largeNbMerchants; i++) {
-            Merchant m = new Merchant(generateId());
-            merchants.add(m);
-        }
+            //Add the banks
+            for (int i = 0; i < Parameters.nbBanks; i++) {
+                Bank b = new Bank(generateId());
+                banks.add(b);
+            }
 
-        //Add the fraudsters
-        System.out.println("NbFraudsters: " + (int) (Parameters.nbFraudsters * largeMultiplier));
-        for (int i = 0; i < Parameters.nbFraudsters * largeMultiplier; i++) {
-            Fraudster f = new Fraudster(generateId());
-            fraudsters.add(f);
-            schedule.scheduleRepeating(f);
-        }
+            //Add the Swiss clients instead of regular clients
+            for (int i = 0; i < Parameters.nbClients; i++) {
+                SwissClient c = new SwissClient(this);
+                clients.add(c);
+            }
+        } else {
+            // LARGE OUTPUT VERSION: Use hardcoded large parameters for ~1M lines
+            int largeNbMerchants = 10000;
+            int largeNbClients = 20000;
+            int largeNbBanks = 20;
+            int largeMultiplier = 20;
 
-        //Add the banks
-        System.out.println("NbBanks: " + largeNbBanks);
-        for (int i = 0; i < largeNbBanks; i++) {
-            Bank b = new Bank(generateId());
-            banks.add(b);
-        }
+            //Add the merchants
+            System.out.println("LARGE OUTPUT MODE - Using hardcoded large parameters");
+            System.out.println("NbMerchants: " + largeNbMerchants);
+            for (int i = 0; i < largeNbMerchants; i++) {
+                Merchant m = new Merchant(generateId());
+                merchants.add(m);
+            }
 
-        //Add the Swiss clients instead of regular clients
-        System.out.println("NbClients: " + largeNbClients);
-        for (int i = 0; i < largeNbClients; i++) {
-            SwissClient c = new SwissClient(this);
-            clients.add(c);
+            //Add the fraudsters
+            System.out.println("NbFraudsters: " + (int) (Parameters.nbFraudsters * largeMultiplier));
+            for (int i = 0; i < Parameters.nbFraudsters * largeMultiplier; i++) {
+                Fraudster f = new Fraudster(generateId());
+                fraudsters.add(f);
+                schedule.scheduleRepeating(f);
+            }
+
+            //Add the banks
+            System.out.println("NbBanks: " + largeNbBanks);
+            for (int i = 0; i < largeNbBanks; i++) {
+                Bank b = new Bank(generateId());
+                banks.add(b);
+            }
+
+            //Add the Swiss clients instead of regular clients
+            System.out.println("NbClients: " + largeNbClients);
+            for (int i = 0; i < largeNbClients; i++) {
+                SwissClient c = new SwissClient(this);
+                clients.add(c);
+            }
         }
 
         // Skip drug network creation for Swiss spending simulator
@@ -117,3 +168,4 @@ public class SwissSpendingSimulator extends PaySim {
         }
     }
 }
+
