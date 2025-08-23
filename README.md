@@ -25,3 +25,304 @@ Master's thesis: Elmir A. PaySim Financial Simulator : PaySim Financial Simula
 http://bth.diva-portal.org/smash/record.jsf?pid=diva2%3A955852&dswid=-1552
 
 2019 Contribution by Camille Barneaud (https://github.com/gadcam) and the company Flaminem (https://www.flaminem.com/) implementation of Money Laundering cases
+
+---
+
+## Swiss Spending Simulator
+
+### Overview
+The Swiss Spending Simulator is an enhanced version of PaySim specifically designed to generate realistic Swiss financial transaction data for AI/ML training purposes. It simulates realistic spending patterns, personal preferences, and Swiss-specific behaviors without fraud data.
+
+### Key Features
+
+#### 1. Person ID System
+- **Unique Identifier**: Each person gets a unique ID (e.g., `P66275862_675_Markus Widmer`)
+- **Pattern Tracking**: Individual spending patterns are tracked and maintained
+- **Personal Preferences**: Deterministic preferences based on Person ID hash
+
+#### 2. Realistic Spending Patterns
+
+##### Income & Pay Cycles
+- **Monthly Salary**: Around end-of-month (25th-30th)
+- **13th Salary**: Optional bonus in November/December for subset of people
+- **Income Variation**: Based on age group, location, and profession
+
+##### Weekly Rhythms
+- **Groceries**: 1-2 times per week (Coop, Migros, Denner, Aldi, Lidl)
+- **Restaurants**: 1-3 times per week (lunch/dinner peaks)
+- **Public Transport**: Daily weekdays OR monthly pass
+- **Fuel**: Weekly or every ~10 days (car owners only)
+
+##### Monthly Bills
+- **Rent/Mortgage**: Once per month (1st-5th of month)
+- **Utilities**: Once per month or quarterly
+- **Phone/Internet**: Monthly billing
+- **Subscriptions**: Spotify, Netflix, Disney+, Gym, etc.
+
+##### Seasonal Patterns
+- **Ski Trips**: December-March
+- **Summer Holidays**: July-August
+- **Shopping Spikes**: November (Black Friday) & December (Christmas)
+- **Back-to-School**: August/September clothing purchases
+- **Swiss Events**: Fasnacht (Feb/Mar), Street Parade Zurich (August)
+
+#### 3. Personas & Demographics
+
+##### Urban Public Transport User
+- Daily public transport usage
+- Higher restaurant spending
+- Lower car-related expenses
+
+##### Suburban Car Owner
+- Weekly fuel purchases
+- Monthly parking/road tolls
+- Higher transport costs
+
+##### Student
+- Low income, small frequent spends
+- High public transport usage
+- Limited restaurant spending
+
+##### Young Professional
+- High restaurant and e-commerce spending
+- Gym memberships
+- Travel and entertainment
+
+##### Family with Kids
+- Large grocery baskets
+- Pharmacy expenses
+- Family travel packages
+
+##### Remote Worker
+- Fewer transport expenses
+- Higher utility costs
+- Home office expenses
+
+#### 4. Category Patterns
+
+##### Groceries
+- **Frequency**: 1-2 times per week
+- **Pattern**: Mixture of small + occasional large baskets
+- **Merchants**: Coop, Migros, Denner, Aldi, Lidl, Volg, Manor
+
+##### Restaurants
+- **Pattern**: Lunch/dinner peaks, coffee micro-payments
+- **Frequency**: 1-3 times per week
+- **Types**: Fast food, casual dining, coffee shops
+
+##### Transport
+- **Options**: Daily tickets OR monthly pass
+- **Providers**: SBB, PostAuto, VBZ, TPG, BVB, Tram
+- **Variations**: Public transport vs. car ownership
+
+##### E-commerce
+- **Timing**: Clusters around November, January, evenings
+- **Categories**: Electronics, clothing, books, home goods
+- **Merchants**: Digitec, MediaMarkt, Orell Füssli, online retailers
+
+##### Travel
+- **Frequency**: 2 times per year
+- **Bundles**: Flights, hotels, restaurants, attractions
+- **Seasonal**: Ski trips (winter), beach holidays (summer)
+
+#### 5. Swiss-Specific Features
+
+##### Merchants & Services
+- **Groceries**: Coop, Migros, Denner, Aldi, Lidl, Manor, Volg
+- **Electronics**: Interdiscount, MediaMarkt, Digitec
+- **Transport**: SBB, VBZ, TPG, BVB, PostAuto
+- **Telecom**: Swisscom, Sunrise, Salt
+- **Banks**: UBS, Credit Suisse, PostFinance, Raiffeisen, ZKB
+- **Airlines**: SWISS, easyJet
+- **Ski Resorts**: Zermatt, St. Moritz, Davos
+
+##### Subscriptions
+- **Streaming**: Swisscom TV, Blue+, Netflix, Spotify
+- **Fitness**: NonStop Gym, Kieser, Fitness First
+- **News**: NZZ, Tages-Anzeiger, Blick
+
+#### 6. Data Quality Features
+
+##### Billing Jitter
+- **Variation**: ±1-2 days for monthly bills
+- **Realistic**: Accounts for processing delays
+
+##### Churn & Changes
+- **Occasional**: Service cancellations and re-subscriptions
+- **Life Events**: Moving, job changes, family changes
+
+##### Noise & Anomalies
+- **Refunds**: ~1-2% negative transactions
+- **Double Charges**: Followed by reversals
+- **Outlier Purchases**: High-value items
+- **Merchant Aliases**: "Migros Sihlcity", "Migros Schlieren"
+- **FX Transactions**: Rare international purchases
+
+##### Balance Dynamics
+- **Initial Balance**: Income-based starting amounts
+- **Monthly Credits**: Salary deposits
+- **Overdrafts**: Occasional negative balances flagged
+- **Credit Card**: Monthly payoff cycles
+
+#### 7. Statistical Distributions
+
+##### Event Timing
+- **Inhomogeneous Poisson**: Weekday/hour bias
+- **Jitter**: Delays, weekend shifts
+
+##### Category Mix
+- **Dirichlet Distribution**: Per-person category preferences
+- **Random α**: Different α per person (not constant)
+
+##### Amount Distributions
+- **Lognormal/Gamma**: Base amounts
+- **Mixtures**: Big vs. small basket distributions
+- **Merchant Preferences**: Zipf/Dirichlet-multinomial (few favorites + long tail)
+
+### Output Format
+- **Person ID**: Unique identifier for each person
+- **Transaction Categories**: Main_Category_Sub_Category format
+- **Realistic Amounts**: Swiss Franc amounts with proper distributions
+- **Company Names**: Real Swiss company names
+- **Timing**: Realistic daily/weekly/monthly patterns
+- **No Fraud**: Clean spending data for ML training
+
+### Use Cases
+- **AI/ML Training**: Pattern recognition, anomaly detection
+- **Customer Segmentation**: Behavioral analysis
+- **Recommendation Systems**: Service suggestions
+- **Risk Assessment**: Credit scoring, overdraft prediction
+- **Market Research**: Spending behavior analysis
+- **Financial Planning**: Budget optimization tools
+
+### Data Volume
+- **Current Output**: ~20 million lines
+- **Clients**: 20,000 unique Swiss people
+- **Time Period**: 365 days (1 year)
+- **File Size**: ~1.9GB
+- **Categories**: 30+ transaction categories
+- **Merchants**: 150+ Swiss companies
+
+---
+
+## Advanced Features (Latest Update)
+
+### 🚀 **Advanced Financial & Behavioral Patterns**
+
+#### **1. Payday Splurging & "Broke" Behavior**
+- **Payday Splurge Mode**: Higher discretionary spending (high-end restaurants, electronics, clothing) in first few days after salary
+- **Broke Mode**: Belt-tightening behavior (cheaper groceries, fewer non-essential purchases) before next salary
+- **Dynamic Spending**: Automatic switching between modes based on salary cycle
+
+#### **2. Buy Now, Pay Later (BNPL) Services**
+- **Klarna/Afterpay Simulation**: Large initial purchases followed by monthly installments
+- **Installment Tracking**: Automatic monthly payments until completion
+- **Realistic Patterns**: 3-12 month payment plans with varying amounts
+
+#### **3. Peer-to-Peer (P2P) Payments**
+- **Twint Integration**: Frequent small-value transfers between individuals
+- **Memo Types**: "Lunch", "Dinner", "Rent Share", "Tickets", "Coffee", "Drinks", "Split Bill"
+- **Social Patterns**: Higher frequency for young and social personas
+
+#### **4. Savings & Investment Transfers**
+- **Regular Transfers**: Fixed-amount transfers on 1st and 15th of month
+- **Dynamic Amounts**: Based on individual savings rate (5-25% of income)
+- **Ad-hoc Transfers**: Bonus savings and conscious saving decisions
+
+#### **5. Economic Sentiment Effects**
+- **Global Sentiment Variable**: Affects spending patterns across all users
+- **Lipstick Effect**: During low sentiment, fewer luxury items but more small comforts
+- **Comfort Purchases**: Gourmet coffee, cosmetics, streaming services, small treats
+
+### 🔄 **Life Events & State Changes**
+
+#### **1. Dynamic Personas (Not Static)**
+- **Job Change**: Sudden salary increase (10-30%), potential commute pattern changes
+- **Job Loss**: Abrupt salary stop, subscription cancellations, drastic spending reduction
+- **Moving**: Cluster of high-value transactions (moving company, furniture, home improvement)
+- **New Child**: Fundamental spending shift (baby supplies, pharmacy, childcare fees)
+
+#### **2. Life Event Probabilities**
+- **Job Change**: 5% per year
+- **Job Loss**: 2-3% per year (higher for young people)
+- **Moving**: 10-15% per year (higher for young people)
+- **New Child**: 3% per year (middle-aged only)
+
+### 🇨🇭 **Granular & Swiss-Specific Details**
+
+#### **1. Travelcard Lifecycle**
+- **Halbtax**: 185 CHF annually (70% of urban users, 30% of car owners)
+- **GA (General Travelcard)**: 3,860 CHF annually (20% of urban users, 10% of car owners)
+- **Cost Reduction**: Individual ticket costs decrease after travelcard purchase
+
+#### **2. Apéro Culture**
+- **Timing**: 5-7 PM on weekdays, especially Thursdays and Fridays
+- **Venues**: Bar 63, Café Bar Odeon, Bar Au Lac, Local Pubs
+- **Personas**: Higher probability for Young Professional and Urban Transport users
+
+#### **3. Gifting Occasions**
+- **Birthday Month**: 30% chance of gift purchases in birthday month
+- **Holiday Season**: 25% chance during November-December
+- **Regular Gifting**: 5% daily probability for social occasions
+
+#### **4. Pet Ownership Persona**
+- **Pet Expenses**: Monthly costs (80-200 CHF) for food, vet, insurance
+- **Ownership Rate**: 20% of population
+- **Stores**: Pet Store, Vet Clinic, Pet Food Store, Pet Insurance
+
+#### **5. Swiss Billers**
+- **Serafe Media Tax**: 335 CHF quarterly (mandatory)
+- **Health Insurance**: 300-500 CHF monthly (Swica, Helsana, CSS, Atupri, KPT, Concordia, Sanitas)
+- **Universal Coverage**: Nearly all Swiss residents have these payments
+
+### 📊 **Data Quality & Anomaly Refinements**
+
+#### **1. Delayed Transactions**
+- **Real-world Delays**: 1-3 days between authorization and posting
+- **Weekend Effects**: Longer delays over weekends and holidays
+- **Processing Variations**: Realistic timing inconsistencies
+
+#### **2. Split Payments & Reimbursements**
+- **Group Expenses**: One person pays full amount, others reimburse via P2P
+- **Shared Costs**: Rent, utilities, travel, entertainment splits
+- **Social Dynamics**: Realistic group spending patterns
+
+#### **3. Category Ambiguity**
+- **Department Stores**: Manor purchases could be groceries, clothing, or electronics
+- **Mixed Categories**: Single transactions with multiple category possibilities
+- **AI Training**: Helps train models to handle categorization ambiguity
+
+#### **4. Evolution of Preferences**
+- **Dynamic Changes**: 0.1% daily chance of preference evolution
+- **Grocery Store Switches**: Changes between Migros, Coop, Aldi, Lidl, etc.
+- **Coffee Shop Discovery**: New favorite coffee shops over time
+- **Realistic Behavior**: People do change preferences in real life
+
+### 🎯 **Enhanced AI Training Benefits**
+
+#### **1. Behavioral Psychology**
+- **Payday Psychology**: Learn to predict spending spikes after income
+- **Economic Sentiment**: Understand how external factors affect spending
+- **Life Event Detection**: Identify major life changes through spending patterns
+
+#### **2. Financial Planning**
+- **Savings Patterns**: Predict when people will save or splurge
+- **BNPL Risk**: Assess credit risk through installment payment history
+- **Budget Optimization**: Understand spending cycles and optimization opportunities
+
+#### **3. Customer Segmentation**
+- **Dynamic Personas**: Track how personas evolve over time
+- **Life Stage Analysis**: Identify transitions between life stages
+- **Preference Evolution**: Understand how customer preferences change
+
+#### **4. Anomaly Detection**
+- **Life Event Anomalies**: Detect unusual spending patterns indicating life changes
+- **Financial Stress**: Identify patterns suggesting financial difficulties
+- **Behavioral Changes**: Track significant shifts in spending behavior
+
+### 📈 **Expected Output Improvements**
+- **File Size**: 2.5-3.0GB (vs. previous 1.9GB)
+- **Line Count**: 25-30 million lines (vs. previous 20 million)
+- **Categories**: 40+ transaction categories (vs. previous 30+)
+- **Companies**: 200+ Swiss companies (vs. previous 150+)
+- **Patterns**: 50+ distinct behavioral patterns (vs. previous 25+)
